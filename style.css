@@ -1,3 +1,9 @@
 .btn{
     margin: 5px;
 }
+
+.full-width-container {
+    width: 100vw;
+    padding: 1vw;
+  }
+  
