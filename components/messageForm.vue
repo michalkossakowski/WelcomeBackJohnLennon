@@ -1,6 +1,13 @@
 <template>
   <h2>Add Message:</h2>
   <form @submit.prevent="submitForm">
+    <div class="form-group">
+      <label for="content">Content:</label>
+      <textarea id="content" class="form-control" v-model="message.content" required></textarea>
+      <button type="submit" class="btn btn-primary">Send</button>
+    </div>
+   
+        
     <label for="id">ID:</label>
     <br />
     <input type="text" id="id" v-model="message.id" required />
@@ -16,17 +23,10 @@
     <input type="date" id="publishDate" v-model="message.publishDate" required />
     <br />
 
-    <label for="author">Autor:</label>
+    <label for="author">Author:</label>
     <br />
     <input type="text" id="author" v-model="message.author" required />
     <br />
-
-    <label for="content">Treść:</label>
-    <br />
-    <textarea id="content" v-model="message.content" required></textarea>
-    <br />
-
-    <button type="submit">Dodaj Wiadomość</button>
   </form>
 </template>
 
@@ -69,3 +69,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+  form{
+    width: 20vw;
+  }
+</style>

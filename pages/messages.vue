@@ -1,6 +1,13 @@
 <template>
     <div>
-        <h1>Messages</h1>
-        <MessageForm />
+        <div class="row">
+            <div class="col">
+                <MessagesFeed />
+            </div>
+
+            <div class="col">
+                <MessageForm />
+            </div>
+        </div>
     </div>
 </template>
