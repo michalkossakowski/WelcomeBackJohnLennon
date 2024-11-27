@@ -8,7 +8,7 @@
     
         <div v-else-if="error">{{ error }}</div>
     
-        <div v-else class="messageBox">
+        <div v-else id="messageBox">
             <div v-for="message in messages" :key="message.id" class="card">
                 <div class="card-body">
                     <h5 class="card-title">{{message.author}}</h5>
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, nextTick  } from 'vue';
     import axiosInstance from '../axiosInstance';
     
     export default {
@@ -42,6 +42,10 @@
                 } 
                 finally {
                     loading.value = false;
+                    nextTick(() => {
+                        const messageBox = document.getElementById("messageBox");
+                        messageBox.scrollTop = messageBox.scrollHeight;
+                    });
                 }
             };
         
@@ -64,7 +68,7 @@
         margin: 1vh 0vh;
     }
     
-    .messageBox{
+    #messageBox{
         max-height: 70vh;
         overflow-y: auto;
         padding-right: 1vw;
