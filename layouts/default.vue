@@ -35,6 +35,13 @@
             >
             Messages
             </NuxtLink>
+            <NuxtLink
+            to="/video"
+            class="btn btn-success"
+            :class="{ active: $route.path === '/video' }"
+            >
+            Video
+            </NuxtLink>
         </nav>
 
         <div>
