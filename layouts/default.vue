@@ -1,67 +1,109 @@
 <template>
     <div class="full-width-container">
-        <h1 class="text-center">Welcome back John Lennon</h1>
+        <header class="text-center">
+            <h1>Welcome back John Lennon</h1>
+        </header>
 
-        <main class="mt-2 d-flex">
-        <nav class="nav flex-column me-4">
-            <NuxtLink
-            to="/"
-            class="btn btn-success mb-2"
-            :class="{ active: $route.path === '/' }"
-            >
-            Home
-            </NuxtLink>
-
-            <NuxtLink
-            to="/servers"
-            class="btn btn-success mb-2"
-            :class="{ active: $route.path === '/servers' }"
-            >
-            Servers
-            </NuxtLink>
-
-            <NuxtLink
-            to="/channels"
-            class="btn btn-success mb-2"
-            :class="{ active: $route.path === '/channels' }"
-            >
-            Channels
-            </NuxtLink>
-
-            <NuxtLink
-            to="/messages"
-            class="btn btn-success"
-            :class="{ active: $route.path === '/messages' }"
-            >
-            Messages
-            </NuxtLink>
-            <NuxtLink
-            to="/video"
-            class="btn btn-success"
-            :class="{ active: $route.path === '/video' }"
-            >
-            Video
-            </NuxtLink>
-        </nav>
-
-        <div>
-            <NuxtPage />
-        </div>
-
-        <div class="custom-container d-flex justify-content-end">
-            <div class="to-right">
-                <h1>USER</h1>
+        <main class="main-container">
+            <div class="sidebar">
+                <UVerticalNavigation :links="links"/>
             </div>
-        </div>
-            
-
+            <div class="content">
+                <NuxtPage />
+            </div>
         </main>
+
+        <footer>
+            @2024 Made by Weryk Kosak and Krzyś special thanks to Billie Eilish
+        </footer>
     </div>
 </template>
 
+    
+<script setup lang="ts">
+    import avatarImage from './public/assets/avatar.jpg';
+    const links = [
+        [            {
+                label: 'Profile',
+                avatar: {
+                    src: avatarImage
+                },
+                badge: 2115
+            }
+        ],
+        [
+            { 
+                label: 'Home', 
+                icon: 'i-heroicons-home', 
+                to: '/' 
+            },
+            { 
+                label: 'Servers', 
+                icon: 'i-heroicons-server', 
+                to: '/servers' 
+            },
+            { 
+                label: 'Channels', 
+                icon: 'i-heroicons-user-group', 
+                to: '/channels' 
+            },
+            { 
+                label: 'Messages', 
+                icon: 'i-heroicons-envelope', 
+                to: '/messages' 
+            },
+            { 
+                label: 'Video', 
+                icon: 'i-heroicons-video-camera', 
+                to: '/video' 
+            },
+
+        ],
+        [
+            {
+                label: 'Help',
+                icon: 'i-heroicons-question-mark-circle',
+                to: '/help'
+            }
+        ]
+    ];
+</script>
+    
 <style scoped>
-.to-right {
-    position: absolute;
-    right: 1vw;
-}
-</style>
+
+    .full-width-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    header {
+        background-color: #1f2937;
+        padding: 5px;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .main-container {
+        display: flex;
+        flex: 1;
+    }
+
+    .sidebar {
+        width: 200px;
+        padding: 5px;
+        height: 5%; 
+        position: sticky;
+        top: 0;
+    }
+
+    .content{
+        padding: 10px;
+        width: 90vw;
+    }
+
+    footer {
+        padding: 10px;
+        text-align: center;
+    }
+</style>    

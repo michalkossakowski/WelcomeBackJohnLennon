@@ -1,78 +1,103 @@
 <template>
     <div>
-        <h2>Messages Feed:</h2>
-    
-        <div v-if="loading">
-            Loading ...
+      <div v-if="loading">
+        <NuxtLoadingIndicator />
+      </div>
+  
+      <div v-else-if="error">
+        {{ error }}
+      </div>
+  
+      <div v-else id="messageBox">
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          class="card"
+        >
+          <UCard>
+            <template #header>
+              <b>{{ message.author }}</b>
+  
+              <div>
+                {{ new Date(message.publishDate).toLocaleTimeString() }}
+                {{ new Date(message.publishDate).toLocaleDateString() }}
+              </div>
+            </template>
+            {{ message.content }}
+          </UCard>
         </div>
-    
-        <div v-else-if="error">{{ error }}</div>
-    
-        <div v-else id="messageBox">
-            <div v-for="message in messages" :key="message.id" class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ message.author }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">{{ new Date(message.publishDate).toLocaleDateString() }}</h6>
-                    <p class="card-text">{{ message.content }}</p>
-                </div>
-            </div>
-        </div>
+      </div>
+
+      <MessageForm @newMessage="addMessage" />
     </div>
-</template>
+  </template>
+  
+  <script lang="ts" setup>
+    import { ref, onMounted, nextTick } from 'vue';
+    import { Message } from '../models/Message';
+    import MessageForm from './messageForm.vue';
 
-<script>
-import { ref, onMounted, nextTick } from 'vue';
-
-export default {
-    setup() {
-        const messages = ref([]);
-        const loading = ref(false);
-        const error = ref(null);
-
-        const fetchMessages = async () => {
-            loading.value = true;
-            error.value = null;
-            try {
-                const { data, error: fetchError } = await useFetch('/api/messages/getAll');
-                messages.value = data.value;
-            } 
-            catch (err) {
-                error.value = 'Fetch error: ' + err.message;
-            } 
-            finally {
-                loading.value = false;
-            
-                nextTick(() => {
-                    const messageBox = document.getElementById("messageBox");
-                    if (messageBox) {
-                        messageBox.scrollTop = messageBox.scrollHeight;
-                    }
-                });
-            }
-        };
-
-        onMounted(() => {
-            fetchMessages();
+    const messages = ref<Message[]>([]);
+    const loading = ref<boolean>(false);
+    const error = ref<string | null>(null);
+  
+    const addMessage = (newMessage: Message) => {
+      messages.value.push(newMessage);
+      nextTick(() => {
+          scrollToNewest();
         });
+    };
+  
+    const fetchMessages = async () => {
+      loading.value = true;
+      error.value = null;
+  
+      try {
+        const { data } = await useFetch('/api/messages/get');
+        if (data.value) {
+          messages.value = data.value.map((message: any) =>
+            new Message(
+                message.id, 
+                message.channelId, 
+                message.publishDate, 
+                message.author, 
+                message.content
+            )
+          );
+        }
+      } 
+      catch (err) {
+        error.value = 'Messages fetch error: ' + err;
+      } 
+      finally {
+        loading.value = false;
+        nextTick(() => {
+          scrollToNewest();
+        });
+      }
+    };
 
-        return {
-            messages,
-            loading,
-            error
-        };
+    const scrollToNewest = () => {
+        const messageBox = document.getElementById('messageBox');
+          if (messageBox) {
+            messageBox.scrollTop = messageBox.scrollHeight;
+          }
     }
-};
-</script>
 
-<style scoped>
-.card {
-    margin: 1vh 0;
-}
-
-#messageBox {
-    max-height: 70vh;
-    overflow-y: auto;
-    padding-right: 1vw;
-    width: 60vw;
-}
-</style>
+    onMounted(() => {
+      fetchMessages();
+    });
+  </script>
+  
+  <style scoped>
+    .card {
+      margin: 20px 1px;
+    }
+  
+    #messageBox {
+      margin-bottom: 20px;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+  </style>
+  

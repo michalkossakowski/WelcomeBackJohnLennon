@@ -1,6 +1,6 @@
 <template>
     <div id="availableCameras"></div>
-    <button id="webCamButton">StartVideo</button>
+    <UButton id="webCamButton">StartVideo</UButton>
     <video id="localVideo" autoplay playsinline controls="false"></video>
 </template>
 <script>
