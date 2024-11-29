@@ -11,9 +11,9 @@
         <div v-else id="messageBox">
             <div v-for="message in messages" :key="message.id" class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{message.author}}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">{{new Date(message.publishDate).toLocaleDateString()}}</h6>
-                    <p class="card-text">{{message.content}}</p>
+                    <h5 class="card-title">{{ message.author }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ new Date(message.publishDate).toLocaleDateString() }}</h6>
+                    <p class="card-text">{{ message.content }}</p>
                 </div>
             </div>
         </div>
@@ -21,58 +21,58 @@
 </template>
 
 <script>
-    import { ref, onMounted, nextTick  } from 'vue';
-    import axiosInstance from '../axiosInstance';
-    
-    export default {
-        setup() {
-            const messages = ref([]);
-            const loading = ref(false);
-            const error = ref(null);
-        
-            const fetchMessages = async () => {
-                loading.value = true;
-                error.value = null;
-                try {
-                    const response = await axiosInstance.get('/messages');
-                    messages.value = response.data;
-                } 
-                catch (err) {
-                    error.value = 'Fetch error: ' + err.message;
-                } 
-                finally {
-                    loading.value = false;
-                    nextTick(() => {
-                        const messageBox = document.getElementById("messageBox");
+import { ref, onMounted, nextTick } from 'vue';
+
+export default {
+    setup() {
+        const messages = ref([]);
+        const loading = ref(false);
+        const error = ref(null);
+
+        const fetchMessages = async () => {
+            loading.value = true;
+            error.value = null;
+            try {
+                const { data, error: fetchError } = await useFetch('/api/messages/getAll');
+                messages.value = data.value;
+            } 
+            catch (err) {
+                error.value = 'Fetch error: ' + err.message;
+            } 
+            finally {
+                loading.value = false;
+            
+                nextTick(() => {
+                    const messageBox = document.getElementById("messageBox");
+                    if (messageBox) {
                         messageBox.scrollTop = messageBox.scrollHeight;
-                    });
-                }
-            };
-        
-            onMounted(() => {
-                fetchMessages();
-            });
+                    }
+                });
+            }
+        };
 
-            return {
-                messages,
-                loading,
-                error
-            };
-        }
-    };
+        onMounted(() => {
+            fetchMessages();
+        });
+
+        return {
+            messages,
+            loading,
+            error
+        };
+    }
+};
 </script>
-    
-<style scoped>
-    
-    .card{
-        margin: 1vh 0vh;
-    }
-    
-    #messageBox{
-        max-height: 70vh;
-        overflow-y: auto;
-        padding-right: 1vw;
-        width: 60vw;
-    }
 
+<style scoped>
+.card {
+    margin: 1vh 0;
+}
+
+#messageBox {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 1vw;
+    width: 60vw;
+}
 </style>
