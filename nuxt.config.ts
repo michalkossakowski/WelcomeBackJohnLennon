@@ -12,5 +12,10 @@ export default defineNuxtConfig({
         'data-bs-theme': 'dark',
       },
     },
-  }
+  },
+  nitro: {
+    routeRules: {
+      '/server/api/**': { cors: true },
+    },
+  },
 })
