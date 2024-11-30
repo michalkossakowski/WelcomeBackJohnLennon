@@ -1,90 +1,82 @@
 <template>
-    <div class="profile-container">
-      <h2>User Profile</h2>
-      <div v-if="user">
-        <p><strong>username:</strong> {{ user.username }}</p>
-        <p><strong>ID:</strong> {{ user.id }}</p>
+  <div class="profile-container">
+    <h1>User Profile</h1>
+    <div v-if="user" class="space-y-4">
+      <div>
+        <strong>ID:</strong> {{ user.id }}
       </div>
-      <div v-else>
-        <p>Loading...</p>
+      <div>
+        <strong>Username:</strong> {{ user.username }}
       </div>
-      <button @click="logout">Log Out</button>
+      <div>
+        <strong>Password:</strong> {{ user.password }}
+      </div>
     </div>
-  </template>
-  
-  <script lang="ts">
-  import { ref, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  
-  export default {
-    setup() {
-      const user = ref<any>(null);
-      const router = useRouter();
-  
-      const fetchUserProfile = async () => {
-        try {
-          const response = await $fetch('/api/users/profile', {
-            method: 'GET',
-          });
-  
-          if (response.statusCode === 200) {
-            user.value = response.user;
-          } else {
-            router.push('/login');
-          }
-        } catch (error) {
-          console.error('Error fetching user profile', error);
-          router.push('/login');
-        }
-      };
-  
-      const logout = async () => {
-        try {
-          // Wywołanie endpointu logout na serwerze
-          const response = await $fetch('/api/auth/logout', {
-            method: 'POST',
-          });
-  
-          if (response.statusCode === 200) {
-            // Po wylogowaniu przekierowanie do strony logowania
-            router.push('/login');
-          } else {
-            console.error('Logout failed');
-          }
-        } catch (error) {
-          console.error('Error during logout', error);
-        }
-      };
-  
-      onMounted(() => {
-        fetchUserProfile();
-      });
-  
-      return {
-        user,
-        logout,
-      };
-    },
-  };
-  </script>
-  
-  <style scoped>
+    <div v-else>
+      <p>Loading...</p>
+    </div>
+    <UButton class="mt-6" @click="logout" >Log Out</UButton>
+  </div>
+</template>
+
+<script setup lang="ts">
+  import { ref, onMounted } from 'vue'
+  import { useRouter } from 'vue-router'
+  import type { User } from '~/models/user'
+
+  const user = ref<User>()
+  const router = useRouter()
+
+  const fetchUser = async () => {
+    try {
+      const response = await $fetch('/api/users/get', {
+        method: 'GET'
+      })
+
+      if (response.statusCode === 200) {
+        user.value = response.user
+      } else {
+        router.push('/login')
+      }
+    } catch (error) {
+      console.error('Error fetching user', error)
+      router.push('/login')
+    }
+  }
+
+  const logout = async () => {
+    try {
+      const response = await $fetch('/api/auth/logout', {
+        method: 'POST'
+      })
+
+      if (response.statusCode === 200) {
+        router.push('/login' ).then(() => {
+            window.location.reload();
+        });
+      } 
+      else {
+        console.error('Logout failed')
+      }
+    } 
+    catch (error) {
+      console.error('Error during logout', error)
+    }
+  }
+
+  onMounted(() => {
+    fetchUser()
+  })
+</script>
+
+<style scoped>
+  h1 {
+    font-size: 32px;
+    margin-bottom: 1rem;
+  }
+
   .profile-container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 1rem;
+
+    margin: 10px;
   }
-  
-  button {
-    padding: 0.5rem;
-    background-color: #f44336;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #e53935;
-  }
-  </style>
-  
+</style>

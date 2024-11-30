@@ -5,7 +5,7 @@
         </header>
 
         <main class="main-container">
-            <div class="sidebar">
+            <div class="sidebar" v-if="user">
                 <UVerticalNavigation :links="links"/>
             </div>
             <div class="content">
@@ -22,67 +22,50 @@
     
 <script setup lang="ts">
     import avatarImage from './public/assets/avatar.jpg';
-    const links = [
-        [            {
-                label: 'Profile',
-                avatar: {
-                    src: avatarImage
-                },
-                badge: 2115
-            }
-        ],
-        [
-            { 
-                label: 'Home', 
-                icon: 'i-heroicons-home', 
-                to: '/' 
-            },
-            { 
-                label: 'Servers', 
-                icon: 'i-heroicons-server', 
-                to: '/servers' 
-            },
-            { 
-                label: 'Channels', 
-                icon: 'i-heroicons-user-group', 
-                to: '/channels' 
-            },
-            { 
-                label: 'Messages', 
-                icon: 'i-heroicons-envelope', 
-                to: '/messages' 
-            },
-            { 
-                label: 'Video', 
-                icon: 'i-heroicons-video-camera', 
-                to: '/video' 
-            },
+    import { ref, computed, onMounted } from 'vue'
+    import type { User } from '~/models/user'
+    import { useRouter } from 'vue-router'
 
-        ],
-        [
-            {
-                label: 'Help',
-                icon: 'i-heroicons-question-mark-circle',
-                to: '/help'
-            },
-            {
-                label: 'login',
-                icon: 'i-heroicons-question-mark-circle',
-                to: '/login'
-            },
-            {
-                label: 'register',
-                icon: 'i-heroicons-question-mark-circle',
-                to: '/register'
-            },
-            {
-                label: 'profile',
-                icon: 'i-heroicons-question-mark-circle',
-                to: '/profile'
+    const router = useRouter()
+    const user = ref<User | null>(null)
+
+    const fetchUser = async () => {
+        try {
+            const response = await $fetch('/api/users/get', { method: 'GET' })
+            if(!user.value){
+                router.push('/login');
             }
-        ]
-    ];
+            user.value = response.user
+        } catch (error) {
+            user.value = null
+        }
+    }
+
+    onMounted(() => {
+        fetchUser()
+    })
+
+    const links = computed(() => {
+            return [
+                [
+                    {
+                        label: user.value?.username || "Guest",
+                        avatar: { src: avatarImage },
+                        to: '/profile'
+                    }
+                ],
+                [
+                    { label: 'Home', icon: 'i-heroicons-home', to: '/' },
+                    { label: 'Servers', icon: 'i-heroicons-server', to: '/servers' },
+                    { label: 'Channels', icon: 'i-heroicons-user-group', to: '/channels' },
+                    { label: 'Messages', icon: 'i-heroicons-envelope', to: '/messages' },
+                    { label: 'Video', icon: 'i-heroicons-video-camera', to: '/video' },
+                ]
+            ];
+    });
+
 </script>
+
     
 <style scoped>
 
@@ -114,7 +97,8 @@
 
     .content{
         padding: 10px;
-        width: 90vw;
+        width: 100%;
+        
     }
 
     footer {

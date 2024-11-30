@@ -22,7 +22,10 @@ export default defineEventHandler(async (event) => {
       maxAge: 60 * 60 * 2, // 2 godziny
     })
 
-    return { statusCode: 200, message: 'Logged in successfully' }
+    return { 
+      statusCode: 200,
+      message: 'Logged in successfully' 
+    }
   } 
   catch (error) {
     throw createError({
