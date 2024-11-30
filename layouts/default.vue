@@ -32,9 +32,11 @@
     const fetchUser = async () => {
         try {
             const response = await $fetch('/api/users/get', { method: 'GET' })
-            if(!user){
-                router.push('/login');
-            }
+            nextTick(() => {
+                if(!user.value){
+                    router.push('/login');
+                }
+            })
             user.value = response.user
         } catch (error) {
             user.value = null
