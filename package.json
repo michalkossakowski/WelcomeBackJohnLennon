@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/types": "^2.18.1",
     "@nuxt/ui": "^2.19.2",
     "axios": "^1.7.7",
     "cors": "^2.8.5",

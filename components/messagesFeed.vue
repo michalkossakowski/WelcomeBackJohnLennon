@@ -34,7 +34,7 @@
   
   <script lang="ts" setup>
     import { ref, onMounted, nextTick } from 'vue';
-    import { Message } from '../models/Message';
+    import { Message } from '../models/message';
     import MessageForm from './messageForm.vue';
 
     const messages = ref<Message[]>([]);

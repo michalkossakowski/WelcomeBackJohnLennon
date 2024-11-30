@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
   import { ref, defineEmits } from 'vue';
-  import { Message } from '../models/Message';
+  import { Message } from '../models/message';
 
   const message = ref<Message>(new Message('', 0, '', '', ''));
 
