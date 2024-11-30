@@ -64,6 +64,21 @@
                 label: 'Help',
                 icon: 'i-heroicons-question-mark-circle',
                 to: '/help'
+            },
+            {
+                label: 'login',
+                icon: 'i-heroicons-question-mark-circle',
+                to: '/login'
+            },
+            {
+                label: 'register',
+                icon: 'i-heroicons-question-mark-circle',
+                to: '/register'
+            },
+            {
+                label: 'profile',
+                icon: 'i-heroicons-question-mark-circle',
+                to: '/profile'
             }
         ]
     ];
