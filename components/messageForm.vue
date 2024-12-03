@@ -15,8 +15,8 @@
 
 <script setup lang="ts">
   import { ref, defineEmits } from 'vue';
-  import { Message } from '../models/message';
-  import type { User } from '~/models/user'
+  import { Message } from '../models/messageModel';
+  import type { User } from '~/models/userModel'
 
   const user = ref<User | null>(null)
       

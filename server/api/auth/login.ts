@@ -1,5 +1,5 @@
 import fs from 'fs/promises'
-import { User, Session } from '~/models/user'
+import { User, Session } from '~/models/userModel'
 
 export default defineEventHandler(async (event) => {
   try {

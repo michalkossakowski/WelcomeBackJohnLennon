@@ -22,7 +22,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
-  import type { User } from '~/models/user'
+  import type { User } from '~/models/userModel'
 
   const user = ref<User>()
   const router = useRouter()

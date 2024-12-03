@@ -23,7 +23,7 @@
 <script setup lang="ts">
     import avatarImage from './public/assets/avatar.jpg';
     import { ref, computed, onMounted } from 'vue'
-    import type { User } from '~/models/user'
+    import type { User } from '~/models/userModel'
     import { useRouter } from 'vue-router'
 
     const router = useRouter()
