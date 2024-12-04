@@ -50,7 +50,6 @@
         throw("Author not recognized")
       }
 
-
       await useFetch('/api/messages/add', {
         method: 'POST',
         body: JSON.stringify(message.value),
