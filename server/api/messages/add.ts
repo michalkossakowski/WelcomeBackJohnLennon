@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import { Message } from '~/models/messageModel'; 
-import { broadcast } from '../../websocket';
+import { sendToChannel } from '../../websocket';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,14 +13,14 @@ export default defineEventHandler(async (event) => {
     messages.push(body);
     await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
 
-    // do wszystkich
-    broadcast(body);
+    sendToChannel(body.channelId, body);
 
     return {
       status: 'success',
       message: 'Message added',
     };
-  } catch (error) {
+  } 
+  catch (error) {
     throw createError({
       statusCode: 500,
       statusMessage: `Message error: ${error}`,
