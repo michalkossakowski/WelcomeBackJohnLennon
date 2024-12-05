@@ -1,5 +1,75 @@
 <template>
-    <div>
-        <h1>Servers</h1>
+  <div class="servers-container">
+    <h1 class="title">Servers</h1>
+    <div class="servers-list">
+      <UCard
+          v-for="server in data"
+          :key="server.id"
+          class="server-card"
+          @click="navigateToServer(server.id)">
+        <template #header>
+          <div class="header-content">
+            <i class="server-icon" />
+            <span>{{ server.title }}</span>
+          </div>
+        </template>
+      </UCard>
     </div>
+  </div>
 </template>
+
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const { data } = await useFetch('/api/servers/get');
+
+const navigateToServer = (serverId: string) => {
+  router.push(`/channels/${serverId}`);
+};
+</script>
+
+<style scoped>
+.servers-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.servers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.server-card {
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.server-card:hover {
+  transform: translateY(-3px);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.server-icon {
+  width: 24px;
+  height: 24px;
+  background-color: #ddd;
+  border-radius: 50%;
+}
+</style>
