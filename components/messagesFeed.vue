@@ -17,7 +17,6 @@
         <UCard>
           <template #header>
             <b>{{ message.author }}</b>
-
             <div>
                 {{ new Date(message.publishDate).toLocaleTimeString() }}
                 {{ new Date(message.publishDate).toLocaleDateString() }}
@@ -28,7 +27,8 @@
       </div>
     </div>
 
-    <MessageForm/>
+    <MessageForm :username="user?.username" :channelId="channelId"/>
+    
   </div>
 </template>
 
@@ -37,13 +37,33 @@
     import { useWebSocket } from '@vueuse/core';
     import { Message } from '../models/messageModel'; 
     import MessageForm from './messageForm.vue';
+    import type { User } from '~/models/userModel'
+
+    const props = defineProps({
+      channelId: {
+        type: String,
+        required: true,
+      },
+    })
 
     const messages = ref<Message[]>([]);
     const loading = ref<boolean>(false);
     const error = ref<string | null>(null);
 
-    const wsUrl = 'ws://localhost:3001';
-    const { send, data, status } = useWebSocket(wsUrl);
+    const wsUrl = ref<string | undefined>(undefined);
+    const {data} = useWebSocket(wsUrl, { immediate: false });
+
+    const user = ref<User | null>(null)
+      
+      const fetchUser = async () => {
+          try {
+              const response = await $fetch('/api/users/get', { method: 'GET' })
+              user.value = response.user
+              wsUrl.value = `ws://localhost:3001?channelId=${props.channelId}&userId=${user.value?.id}`;
+          } catch (error) {
+              user.value = null
+          }
+      }
 
     watch(data, (newMessage) => {
         if (newMessage) {
@@ -65,9 +85,9 @@
         error.value = null;
 
         try {
-            const { data } = await useFetch('/api/messages/get');
-            if (data.value) {
-            messages.value = data.value.map((message: any) =>
+            const data  = await $fetch(`/api/messages/${props.channelId}`);
+            if (data) {
+            messages.value = data.map((message: Message) =>
                 new Message(
                 message.id,
                 message.channelId,
@@ -95,6 +115,7 @@
     };
 
     onMounted(() => {
+        fetchUser();
         fetchMessages();
     });
 </script>
