@@ -1,25 +1,26 @@
 import fs from 'fs/promises';
+import path from 'path';
 import { Message } from '~/models/messageModel';
 
 export default defineEventHandler(async (event) => {
-  try {
+    try {
+        const { channelId } = event.context.params || {};
+        const filePath = path.join('./db/messagesByChannel', `messages_${channelId}.json`);
 
-    const { channelId } = event.context.params || {}; 
+        try {
+            const data = await fs.readFile(filePath, 'utf8');
+            const messages: Message[] = JSON.parse(data);
 
-    if (!channelId) {
-      throw new Error('channelId is required');
+            return messages;
+        }
+        catch (error) {
+            return [];
+        }
     }
-
-    const data = await fs.readFile('./db/messages.json', 'utf8');
-    const messages = JSON.parse(data);
-
-    const filteredMessages = messages.filter((msg : Message) => msg.channelId === channelId);
-
-    return filteredMessages;
-
-  } 
-  catch (error) {
-    console.error('Error getting messages:', error);
-    return { status: 500, message: 'Error getting messages: ' + error };
-  }
+    catch (error) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: `Messages get by channel error: ${error}`,
+        });
+    }
 });

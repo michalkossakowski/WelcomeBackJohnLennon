@@ -7,3 +7,8 @@ export interface User {
 export interface Session {
   userId: string;
 }
+
+export interface UserBasics{
+  id: string;
+  username: string;
+}
