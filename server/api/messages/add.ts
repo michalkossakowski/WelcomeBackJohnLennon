@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { Message } from '~/models/messageModel';
-import { sendToChannel } from '../../websocket';
+import { sendToChannel, sendToAllClients } from '../../websocket';
 
 export default defineEventHandler(async (event) => {
     try {
@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
         await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
 
         sendToChannel(body.channelId, body);
+        sendToAllClients(body);
 
         return {
             status: 'success',

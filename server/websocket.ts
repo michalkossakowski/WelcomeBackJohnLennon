@@ -1,9 +1,10 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import { Message } from '~/models/messageModel';
 
 const wss = new WebSocketServer({ port: 3001 });
 
 const clientsByChannel = new Map();
+const connectedClients = new Set<WebSocket>();
 
 wss.on('connection', (ws, req) => {
 
@@ -31,6 +32,8 @@ wss.on('connection', (ws, req) => {
         }
     });
 
+    connectedClients.add(ws)
+    console.log(`Client connected: "${userId}" clients: ${connectedClients.size}`);
 });
 
 const sendToChannel = (channelId: string, message: Message) => {
@@ -46,4 +49,12 @@ const sendToChannel = (channelId: string, message: Message) => {
     }
 };
 
-export { sendToChannel };
+const sendToAllClients = (message: Message) => {
+    connectedClients.forEach((client: WebSocket) => {
+        if (client.readyState === 1) {
+            client.send(JSON.stringify(message));
+        }
+    });
+};
+
+export { sendToChannel, sendToAllClients };
