@@ -50,7 +50,6 @@ const setupWebSocket = () => {
 
     socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log('Otrzymano wiadomość:', message);
 
         newMessage.value = {
             content: message.content,
