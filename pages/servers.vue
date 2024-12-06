@@ -25,7 +25,7 @@ const router = useRouter();
 const { data } = await useFetch('/api/servers/get');
 
 const navigateToServer = (serverId: string) => {
-  router.push(`/channels/${serverId}`);
+  router.push(`/server/${serverId}`);
 };
 </script>
 
