@@ -1,82 +1,82 @@
 <template>
-  <div class="profile-container">
-    <h1>User Profile</h1>
-    <div v-if="user" class="space-y-4">
-      <div>
-        <strong>ID:</strong> {{ user.id }}
-      </div>
-      <div>
-        <strong>Username:</strong> {{ user.username }}
-      </div>
-      <div>
-        <strong>Password:</strong> {{ user.password }}
-      </div>
+    <div class="profile-container">
+        <h1>User Profile</h1>
+        <div v-if="user" class="space-y-4">
+            <div>
+                <strong>ID:</strong> {{ user.id }}
+            </div>
+            <div>
+                <strong>Username:</strong> {{ user.username }}
+            </div>
+            <div>
+                <strong>Password:</strong> {{ user.password }}
+            </div>
+        </div>
+        <div v-else>
+            <p>Loading...</p>
+        </div>
+        <UButton class="mt-6" @click="logout">Log Out</UButton>
     </div>
-    <div v-else>
-      <p>Loading...</p>
-    </div>
-    <UButton class="mt-6" @click="logout" >Log Out</UButton>
-  </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
-  import { useRouter } from 'vue-router'
-  import type { User } from '~/models/userModel'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import type { User } from '~/models/userModel'
 
-  const user = ref<User>()
-  const router = useRouter()
+const user = ref<User>()
+const router = useRouter()
 
-  const fetchUser = async () => {
+const fetchUser = async () => {
     try {
-      const response = await $fetch('/api/users/get', {
-        method: 'GET'
-      })
+        const response = await $fetch('/api/users/get', {
+            method: 'GET'
+        })
 
-      if (response.statusCode === 200) {
-        user.value = response.user
-      } else {
-        router.push('/login')
-      }
+        if (response.statusCode === 200) {
+            user.value = response.user
+        } else {
+            router.push('/login')
+        }
     } catch (error) {
-      console.error('Error fetching user', error)
-      router.push('/login')
+        console.error('Error fetching user', error)
+        router.push('/login')
     }
-  }
+}
 
-  const logout = async () => {
+const logout = async () => {
     try {
-      const response = await $fetch('/api/auth/logout', {
-        method: 'POST'
-      })
+        const response = await $fetch('/api/auth/logout', {
+            method: 'POST'
+        })
 
-      if (response.statusCode === 200) {
-        router.push('/login' ).then(() => {
-            window.location.reload();
-        });
-      } 
-      else {
-        console.error('Logout failed')
-      }
-    } 
-    catch (error) {
-      console.error('Error during logout', error)
+        if (response.statusCode === 200) {
+            router.push('/login').then(() => {
+                window.location.reload();
+            });
+        }
+        else {
+            console.error('Logout failed')
+        }
     }
-  }
+    catch (error) {
+        console.error('Error during logout', error)
+    }
+}
 
-  onMounted(() => {
+onMounted(() => {
     fetchUser()
-  })
+})
 </script>
 
 <style scoped>
-  h1 {
+h1 {
     font-size: 32px;
     margin-bottom: 1rem;
-  }
+}
 
-  .profile-container {
+.profile-container {
 
     margin: 10px;
-  }
+}
 </style>

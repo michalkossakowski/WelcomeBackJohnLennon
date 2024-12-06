@@ -1,59 +1,56 @@
 <template>
-  <form @submit.prevent="submitForm">
-    <div class="form-group">
-      <UTextarea
-        id="content"
-        v-model="message.content"
-        placeholder="Enter your message content"
-        required
-        @keydown.enter.prevent="submitForm"
-      />
+    <div class="message-form">
+        <form @submit.prevent="submitForm">
+            <div class="form-group">
+                <UTextarea id="content" v-model="message.content" placeholder="Enter your message content" required
+                    @keydown.enter.prevent="submitForm" />
+            </div>
+        </form>
     </div>
-  </form>
 </template>
 
 <script setup lang="ts">
-  import { ref, defineEmits } from 'vue';
-  import { Message } from '../models/messageModel';
+import { ref, defineEmits } from 'vue';
+import { Message } from '../models/messageModel';
 
-  const props = defineProps({
+const props = defineProps({
     username: {
-      type: String,
-      required: true,
-      default: 'Guest',
+        type: String,
+        required: true,
+        default: 'Guest',
     },
     channelId: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
-  })
+})
 
-  const message = ref<Message>(new Message('', '', new Date(), '', ''));
+const message = ref<Message>(new Message('', '', new Date(), '', ''));
 
-  const emit = defineEmits();
+const emit = defineEmits();
 
-  const submitForm = async () => {
+const submitForm = async () => {
     try {
-      message.value.id = Math.random().toString(36).slice(2, 12);
-      message.value.channelId = props.channelId;
-      message.value.publishDate = new Date();
-      message.value.author = props.username;
+        message.value.id = Math.random().toString(36).slice(2, 12);
+        message.value.channelId = props.channelId;
+        message.value.publishDate = new Date();
+        message.value.author = props.username;
 
-      await $fetch('/api/messages/add', {
-        method: 'POST',
-        body: JSON.stringify(message.value),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+        await $fetch('/api/messages/add', {
+            method: 'POST',
+            body: JSON.stringify(message.value),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-      emit('newMessage', message.value);
+        emit('newMessage', message.value);
 
-      message.value = new Message('', '',new Date(), '', '');
+        message.value = new Message('', '', new Date(), '', '');
     } catch (err) {
-      console.error('Message send error: ' + err);
+        console.error('Message send error: ' + err);
     }
-  };
+};
 </script>
 
 <style scoped>
