@@ -1,24 +1,29 @@
-import fs from 'fs/promises'
+import fs from 'fs/promises';
+import { Message } from '~/models/messageModel'; 
+import { sendToChannel } from '../../websocket';
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event) 
-    const filePath = './db/messages.json'
-    const data = await fs.readFile(filePath, 'utf8')
+    const body: Message = await readBody(event);  
 
-    let messages = JSON.parse(data)
-    messages.push(body)
-    await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8')
+    const filePath = './db/messages.json';
+    const data = await fs.readFile(filePath, 'utf8');
+    let messages: Message[] = JSON.parse(data);
+
+    messages.push(body);
+    await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
+
+    sendToChannel(body.channelId, body);
 
     return {
       status: 'success',
       message: 'Message added',
-    }
+    };
   } 
   catch (error) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'Messages adding error: ' + error,
-    })
+      statusMessage: `Message error: ${error}`,
+    });
   }
-})
+});
