@@ -1,5 +1,10 @@
 [
     {
+        "id": "PrivateMessages",
+        "title": "PrivateMessages",
+        "creatorId": "0"
+    },
+    {
         "id": "sabrinaStolarz",
         "title": "Sabrina Stolarz Funclub",
         "creatorId": "1"
