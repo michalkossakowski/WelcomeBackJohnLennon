@@ -32,6 +32,7 @@ type Channel = {
 };
 
 const route = useRoute();
+const router = useRouter();
 const serverId = route.params.id as string;
 const channels = ref<Channel[]>([]);
 
@@ -39,7 +40,7 @@ const { data } = await useFetch<{ channels: Channel[] }>(`/api/channels/${server
 channels.value = data.value?.channels || [];
 
 const navigateToChannel = (channelId: string) => {
-  console.log(`Navigating to channel: ${channelId}`);
+  router.push(`/server/channel/${channelId}`);
 };
 </script>
 
