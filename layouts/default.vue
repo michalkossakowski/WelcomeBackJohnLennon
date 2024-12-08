@@ -50,11 +50,7 @@ const setupWebSocket = () => {
     //const socket = new WebSocket('https://<adrestunelu>/');
     socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
-
-        newMessage.value = {
-            content: message.content,
-            channelId: message.channelId,
-        };
+        toast.add({ title: `New Message: ${message.content}`,description: `Channel: ${message.channelId}`});
     };
 };
 
@@ -78,15 +74,6 @@ const links = computed(() => {
     ];
 });
 
-let lastMessageContent: string | null = null; 
-
-watchEffect(() => {
-    if (newMessage.value && newMessage.value.content !== lastMessageContent) {
-        toast.clear();  
-        toast.add({ title: `New Message: ${newMessage.value.content}` });
-        lastMessageContent = newMessage.value.content;
-    }
-});
 
 onMounted(() => {
     fetchUser();
