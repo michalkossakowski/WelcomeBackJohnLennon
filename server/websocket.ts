@@ -49,7 +49,7 @@ const sendToChannel = (channelId: string, message: Message) => {
     }
 };
 
-const sendToAllClients = (message: Message) => {
+const sendNotifications = (message: Message) => {
     connectedClients.forEach((client: WebSocket) => {
         if (client.readyState === 1) {
             client.send(JSON.stringify(message));
@@ -57,4 +57,4 @@ const sendToAllClients = (message: Message) => {
     });
 };
 
-export { sendToChannel, sendToAllClients };
+export { sendToChannel, sendNotifications };
