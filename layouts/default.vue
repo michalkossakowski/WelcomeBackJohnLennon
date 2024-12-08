@@ -47,7 +47,7 @@ const fetchUser = async () => {
 
 const setupWebSocket = () => {
     const socket = new WebSocket('ws://localhost:3001');
-
+    //const socket = new WebSocket('https://<adrestunelu>/');
     socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
 

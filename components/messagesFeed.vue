@@ -19,7 +19,9 @@
                             {{ new Date(message.publishDate).toLocaleTimeString() }}
                         </span>
                     </template>
-                    {{ message.content }}
+                    <div class="message-content">    
+                        {{ message.content }}
+                    </div>
                 </UCard>
             </div>
         </div>
@@ -57,6 +59,7 @@ const fetchUser = async () => {
         const response = await $fetch('/api/users/get', { method: 'GET' })
         user.value = response.user
         wsUrl.value = `ws://localhost:3001?channelId=${props.channelId}&userId=${user.value?.id}`;
+        //wsUrl.value = `https://<adrestunelu>?channelId=${props.channelId}&userId=${user.value?.id}`;
     } catch (error) {
         user.value = null
     }
@@ -129,6 +132,10 @@ onUnmounted(() => {
 }
 .card {
     margin: 20px 1px;
+}
+
+.message-content{
+    word-wrap: break-word;
 }
 
 .username {
