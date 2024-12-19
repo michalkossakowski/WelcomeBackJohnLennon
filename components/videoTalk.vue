@@ -1,107 +1,136 @@
 <template>
-    <div id="availableCameras"></div>
-    <UButton @click="startVideo" v-if="!isStreaming">StartVideo</UButton>
-    <UButton @click="stopVideo" v-if="isStreaming">Stop Video</UButton>
-    <UButton @click="startRTCConnection" v-if="isStreaming">Start RTC</UButton>
-    <video ref="localVideo" autoplay playsinline controls="false" ></video>
+    <UButton @click="start" v-if="!isStreaming">StartVideo</UButton>
+    <video ref="selfVideo" autoplay playsinline controls="false" muted></video>
+    <video ref="remoteVideo" autoplay playsinline controls="false" ></video>
 </template>
-<script>
+<script >
 import { ref, onMounted, onUnmounted } from 'vue';
 
 export default {
   setup() {
-    const videoCameras = ref([]);
-    const localVideo = ref(null);
-    const remoteVideo = ref(null);
-    const mediaStream = ref(null);
-    const peerConnection = ref(null);
+    const selfVideo  = ref(null);
+    const remoteVideo  = ref(null);
     const isStreaming = ref(false);
+    const mediaStream = ref(null);
     const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+    const constraints = { audio: true, video: true };
+    const polite = true;
 
-    const getConnectedDevices = async (type) => {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      return devices.filter(device => device.kind === type);
-    };
-
-    const loadCameras = async () => {
-      videoCameras.value = await getConnectedDevices('videoinput');
-      console.log('Cameras found:', videoCameras.value);
-    };
-
-    const startVideo = async () => {
-      try {
-        console.log('Starting video');
-        const constraints = { video: true, audio: true };
-        mediaStream.value = await navigator.mediaDevices.getUserMedia(constraints);
-        if (localVideo.value) {
-          localVideo.value.srcObject = mediaStream.value;
-          isStreaming.value = true;
-        }
-      } catch (error) {
-        console.error('Error opening video camera.', error);
+    class SignalingChannel {
+      constructor() {
+        this.ws = new WebSocket('https://1rw648c8-3002.euw.devtunnels.ms');
+        this.ws.onopen = () => {
+          console.log('WebSocket opened');
+        };
+        this.send = (message) => {
+          this.ws.send(JSON.stringify(message));
+        };
+        this.ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          this.onmessage(data);
+        };
+        this.ws.onclose = () => {
+          console.log('WebSocket closed');
+        };
       }
-    };
+    }
+
+    const pc = new RTCPeerConnection(rtcConfig);
+    const signaler = new SignalingChannel();
+    async function start() {
+      try {
+        mediaStream.value = await navigator.mediaDevices.getUserMedia(constraints);
+
+        for (const track of mediaStream.value.getTracks()) {
+          pc.addTrack(track, mediaStream.value);
+        }
+        console.log('VideoStarted');
+        selfVideo.value.srcObject = mediaStream.value;
+      } catch (err) {
+        console.error(err);
+      }
+    }
     const stopVideo = () => {
       if (mediaStream.value) {
         // Zatrzymujemy wszystkie ścieżki w strumieniu
         mediaStream.value.getTracks().forEach(track => track.stop());
         mediaStream.value = null;
-        isStreaming.value = false;
         console.log('Video stopped');
       }
     };
-    const startRTCConnection = async () => {
+
+    pc.ontrack = ({ track, streams }) => {
+      track.onunmute = () => {
+        if (remoteVideo.value.srcObject != null) {
+          return;
+        }
+        remoteVideo.value.srcObject = streams[0];
+      };
+    };
+    let makingOffer = false;
+
+    pc.onnegotiationneeded = async () => {
       try {
-        console.log('Starting RTC connection');
-        peerConnection.value = new RTCPeerConnection(rtcConfig);
+        console.log('Negotiation needed');
+        makingOffer = true;
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        signaler.send({ description: pc.localDescription });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        makingOffer = false;
+      }
+    };
+    pc.onicecandidate = ({ candidate }) => signaler.send({ candidate });
 
-        // Dodaj lokalny strumień do PeerConnection
-        mediaStream.value.getTracks().forEach(track => {
-          peerConnection.value.addTrack(track, mediaStream.value);
-        });
+    let ignoreOffer = false;
 
-        // Odbieranie strumienia zdalnego
-        peerConnection.value.ontrack = (event) => {
-          console.log('Remote stream received');
-          if (remoteVideo.value) {
-            remoteVideo.value.srcObject = event.streams[0];
+    signaler.onmessage = async ({ description, candidate }) => {
+      try {
+        if (description) {
+          const offerCollision =
+            description.type === "offer" &&
+            (makingOffer || pc.signalingState !== "stable");
+
+          ignoreOffer = !polite && offerCollision;
+          if (ignoreOffer) {
+            return;
           }
-        };
 
-        // Obsługa ICE candidate
-        peerConnection.value.onicecandidate = (event) => {
-          if (event.candidate) {
-            console.log('New ICE candidate:', event.candidate);
-            // W realnej aplikacji należy wysłać candidate do drugiego użytkownika
+          await pc.setRemoteDescription(description);
+          if (description.type === "offer") {
+            await pc.setLocalDescription();
+            signaler.send({ description: pc.localDescription });
           }
-        };
-
-        // Stworzenie oferty
-        const offer = await peerConnection.value.createOffer();
-        await peerConnection.value.setLocalDescription(offer);
-        console.log('Offer created and set as local description:', offer);
-
-        // W realnej aplikacji wyślij ofertę do drugiego użytkownika
-      } catch (error) {
-        console.error('Error starting RTC connection:', error);
+        } else if (candidate) {
+          try {
+            await pc.addIceCandidate(candidate);
+          } catch (err) {
+            if (!ignoreOffer) {
+              throw err;
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
 
     onMounted(() => {
-      loadCameras();
+
     });
     onUnmounted(() => {
-        stopVideo();
+      stopVideo();
+      signaler.ws.close();
     });
 
     return {
-        videoCameras,
-        localVideo,
-        remoteVideo,
-        startVideo,
-        stopVideo,
-        startRTCConnection,
-        isStreaming,
+      selfVideo,
+      remoteVideo,
+      isStreaming,
+      start,
+      stopVideo
     };
   },
 };
