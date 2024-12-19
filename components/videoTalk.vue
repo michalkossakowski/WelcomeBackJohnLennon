@@ -18,7 +18,7 @@ export default {
 
     class SignalingChannel {
       constructor() {
-        this.ws = new WebSocket('https://1rw648c8-3002.euw.devtunnels.ms');
+        this.ws = new WebSocket('ws://localhost:3002'); //ws://localhost:3002
         this.ws.onopen = () => {
           console.log('WebSocket opened');
         };
