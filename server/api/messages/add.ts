@@ -1,24 +1,43 @@
-import fs from 'fs/promises'
+import fs from 'fs/promises';
+import path from 'path';
+import { Message } from '~/models/messageModel';
+import { sendToChannel, sendNotifications } from '../../websocket';
 
 export default defineEventHandler(async (event) => {
-  try {
-    const body = await readBody(event) 
-    const filePath = './db/messages.json'
-    const data = await fs.readFile(filePath, 'utf8')
+    try {
+        const body: Message = await readBody(event);
+        const folderPath = './db/messagesByChannel';
+        const filePath = path.join(folderPath, `messages_${body.channelId}.json`);
 
-    let messages = JSON.parse(data)
-    messages.push(body)
-    await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8')
+        try {
+            await fs.access(folderPath);
+        } catch (error) {
+            await fs.mkdir(folderPath, { recursive: true });
+        }
 
-    return {
-      status: 'success',
-      message: 'Message added',
+        let messages: Message[];
+        try {
+            const data = await fs.readFile(filePath, 'utf8');
+            messages = JSON.parse(data);
+        } catch (error) {
+            messages = [];
+        }
+
+        messages.push(body);
+        await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
+
+        sendToChannel(body.channelId, body);
+        sendNotifications(body);
+
+        return {
+            status: 'success',
+            message: 'Message added',
+        };
     }
-  } 
-  catch (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Messages adding error: ' + error,
-    })
-  }
-})
+    catch (error) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: `Message add error: ${error}`,
+        });
+    }
+});
