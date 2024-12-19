@@ -1,6 +1,6 @@
 <template>
-    <div class="login-container">
-        <h1>Login</h1>
+    <div class="auth-container">
+        <h1>{{ isLogin ? 'Login' : 'Register' }}</h1>
         <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
             <UFormGroup label="Username" name="username">
                 <UInput v-model="state.username" placeholder="Enter your username" />
@@ -10,12 +10,13 @@
                 <UInput v-model="state.password" type="password" placeholder="Enter your password" />
             </UFormGroup>
 
-            <UButton type="submit">Log In</UButton>
+            <UButton type="submit">{{ isLogin ? 'Log In' : 'Register' }}</UButton>
         </UForm>
 
+        <UButton @click="toggleMode" class="mt-4">
+            {{ isLogin ? "Don't have an account? Register" : 'Already have an account? Log In' }}
+        </UButton>
         <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
-
-        <UButton to="/register" class="mt-4">Don't have an account? Register</UButton>
     </div>
 </template>
 
@@ -31,17 +32,20 @@ const schema = object({
 
 type Schema = InferType<typeof schema>
 
+const isLogin = ref(true)
+
 const state = reactive({
     username: undefined,
     password: undefined
 })
 
 const router = useRouter()
-const errorMessage = ref('')
+const errorMessage = ref<string | null>(null);
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
     try {
-        const response = await $fetch('/api/auth/login', {
+        const url = isLogin.value ? '/api/auth/login' : '/api/auth/register'
+        const response = await $fetch(url, {
             method: 'POST',
             body: {
                 username: event.data.username,
@@ -50,17 +54,27 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         })
 
         if (response.statusCode === 200) {
-            router.push('/profile').then(() => {
-                window.location.reload();
-            });
-        }
-        else {
+            if (isLogin.value) {
+                router.push('/').then(() => {
+                    window.location.reload()
+                })
+            } else {
+                router.push('/login')
+            }
+        } else {
             errorMessage.value = response.message
         }
+    } catch (error) {
+        errorMessage.value = (isLogin.value ? 'Login' : 'Registration') + ' failed: ' + error
     }
-    catch (error) {
-        errorMessage.value = 'Login failed: ' + error
-    }
+}
+
+
+function toggleMode() {
+    isLogin.value = !isLogin.value
+    errorMessage.value = null;
+    state.username = undefined
+    state.password = undefined
 }
 </script>
 
@@ -69,9 +83,9 @@ h1 {
     font-size: 32px;
 }
 
-.login-container {
+.auth-container {
     max-width: 300px;
-    margin: auto auto;
+    margin: auto;
     text-align: center;
 }
 
