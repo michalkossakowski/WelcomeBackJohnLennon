@@ -15,12 +15,23 @@
             :description='`There is no friend with name: "${searchFriend}"`'
         />
         <div class="friends-list">
-            <UCard v-for="friend in filteredFriends" :key="friend.id" class="friend-card"
-                @click="console.log(`Ja: ${user?.id} Ziomo: ${friend.id}`)">
+            <UCard v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
                 <template #header>
                     <div class="header-content">
-                        <i class="friend-icon"></i>
-                        <span>{{ friend.username }}</span>
+                        <div class="iconName">
+                            <UIcon name="i-heroicons-user"/>
+                            {{ friend.username }}
+                        </div>
+
+                        <div class="buttons">
+                            <button @click="console.log(`Message Ja: ${user?.id} Ziomo: ${friend.id}`)">
+                                <UIcon class="icon w-5 h-5" name="i-heroicons-chat-bubble-left-right"/>
+                            </button>
+                            <button  @click="console.log(`Video Ja: ${user?.id} Ziomo: ${friend.id}`)">
+                                <UIcon class="icon w-5 h-5" name="i-heroicons-video-camera"/>
+                            </button>
+                        </div>
+
                     </div>
                 </template>
             </UCard>
@@ -90,18 +101,23 @@ onMounted(() => {
 }
 
 .friends-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
 }
 
 .friend-card {
     transition: transform 0.3s ease;
-    cursor: pointer;
 }
 
 .friend-card:hover {
     transform: translateY(-3px);
+}
+
+@media (min-width: 600px) {
+    .friends-container {
+        max-width: 100%;
+    }
 }
 
 .header-content {
@@ -110,6 +126,7 @@ onMounted(() => {
     gap: 10px;
     font-weight: bold;
     font-size: 16px;
+    justify-content: space-between;
 }
 
 .friend-icon {
@@ -117,5 +134,14 @@ onMounted(() => {
     height: 24px;
     background-color: #ddd;
     border-radius: 50%;
+}
+
+.icon{
+    transition: transform 0.3s ease;
+    margin-left: 10px;
+}
+.icon:hover{
+    color:#4ade80;
+    transform: translateY(-3px);
 }
 </style>

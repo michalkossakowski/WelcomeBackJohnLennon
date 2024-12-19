@@ -15,7 +15,6 @@
         <div v-else>
             <p>Loading...</p>
         </div>
-        <UButton class="mt-6" @click="logout">Log Out</UButton>
     </div>
 </template>
 
@@ -45,15 +44,13 @@ const fetchUser = async () => {
 }
 
 const logout = async () => {
+    window.location.reload();
     try {
         const response = await $fetch('/api/auth/logout', {
             method: 'POST'
         })
-
         if (response.statusCode === 200) {
-            router.push('/login').then(() => {
-                window.location.reload();
-            });
+            console.error('Logout succesfull')
         }
         else {
             console.error('Logout failed')

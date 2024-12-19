@@ -1,17 +1,27 @@
 <template>
     <div class="full-width-container">
         <header class="text-center">
-            <h1>Welcome back {{ user?.username }}</h1>
+            <h1>Welcome back John Lennon Communication App</h1>
         </header>
 
-        <main class="main-container">
-            <div class="sidebar" v-if="user">
-                <UVerticalNavigation :links="links" />
+        <div v-if="isLoading" class="loaderBox">
+            <h1>Loading ...</h1>
+            <UProgress  class="loader" animation="carousel" />
+        </div>
+        
+        <main v-else-if="user" class="main-container">
+            <div class="sidebar">
+                    <UVerticalNavigation :links="links" />
+                    <UButton class="logoutButton" @click="logout">Log Out</UButton>
             </div>
             <div class="content">
                 <NuxtPage />
             </div>
         </main>
+
+        <div v-else>
+            <Login/>
+        </div>
 
         <footer>
             @2024 Made by Weryk Kosak and Krzyś special thanks to Billie Eilish
@@ -29,19 +39,20 @@ import type { User } from '~/models/userModel';
 
 const router = useRouter();
 const user = ref<User | null>(null);
-const newMessage = ref<{ content: string, channelId: string } | null>(null); // stan dla powiadomień o wiadomościach
 const toast = useToast()
-
+const isLoading = ref(true);
 
 const fetchUser = async () => {
     try {
         const response = await $fetch('/api/users/get', { method: 'GET' });
         user.value = response.user;
         if (!user.value) {
-            router.push('/login');
+            return;
         }
     } catch (error) {
         user.value = null;
+    } finally {
+        isLoading.value = false; // Set isLoading to false once the request completes
     }
 };
 
@@ -74,6 +85,23 @@ const links = computed(() => {
     ];
 });
 
+const logout = async () => {
+    isLoading.value = true;
+    try {
+        const response = await $fetch('/api/auth/logout', {
+            method: 'POST'
+        })
+        if (response.statusCode === 200) {
+            window.location.reload();
+        }
+        else {
+            console.error('Logout failed')
+        }
+    }
+    catch (error) {
+        console.error('Error during logout', error)
+    }
+}
 
 onMounted(() => {
     fetchUser();
@@ -100,17 +128,41 @@ header {
     flex: 1;
 }
 
+.logoutButton{
+    margin: 5px;
+    text-align: center;
+}
 .sidebar {
-    width: 200px;
+    max-width: 200px;
+    min-width: 200px;
     padding: 5px;
-    height: 5%;
+    height: 0;
     position: sticky;
     top: 0;
+    text-align: center;
 }
 
 .content {
-    padding: 10px;
-    width: 100%;
+    flex-grow: 1; 
+    padding: 5px 20px;
+    overflow-y: auto;
+}
+
+.loaderBox {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader{
+    width: 200px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
 }
 
 footer {
