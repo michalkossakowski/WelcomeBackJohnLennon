@@ -1,0 +1,24 @@
+import { defineEventHandler, useWebSocket } from 'h3';
+
+const connections: WebSocket[] = [];
+
+export default defineEventHandler((event) => {
+  const ws = useWebSocket(event);
+
+  connections.push(ws);
+
+  ws.on('message', (message) => {
+    // Przekazywanie wiadomości między klientami
+    const data = JSON.parse(message.toString());
+    connections.forEach((conn) => {
+      if (conn !== ws && conn.readyState === ws.OPEN) {
+        conn.send(JSON.stringify(data));
+      }
+    });
+  });
+
+  ws.on('close', () => {
+    const index = connections.indexOf(ws);
+    if (index !== -1) connections.splice(index, 1);
+  });
+});

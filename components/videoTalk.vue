@@ -1,108 +1,109 @@
 <template>
-    <div id="availableCameras"></div>
-    <UButton @click="startVideo" v-if="!isStreaming">StartVideo</UButton>
-    <UButton @click="stopVideo" v-if="isStreaming">Stop Video</UButton>
-    <UButton @click="startRTCConnection" v-if="isStreaming">Start RTC</UButton>
-    <video ref="localVideo" autoplay playsinline controls="false" ></video>
+  <div class="flex flex-col items-center justify-center space-y-4">
+    <div id="video-container" class="grid grid-cols-2 gap-4">
+      <video ref="selfVideo" autoplay playsinline class="w-full h-auto border border-gray-300 rounded"></video>
+      <video ref="remoteVideo" autoplay playsinline class="w-full h-auto border border-gray-300 rounded"></video>
+    </div>
+    <div class="flex space-x-4">
+      <UButton @click="start" v-if="!isStreaming">Start Video</UButton>
+      <UButton @click="stop" v-if="isStreaming">Stop Video</UButton>
+    </div>
+  </div>
 </template>
-<script>
+
+<script lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 
-export default {
+export default defineComponent({
   setup() {
-    const videoCameras = ref([]);
-    const localVideo = ref(null);
-    const remoteVideo = ref(null);
-    const mediaStream = ref(null);
-    const peerConnection = ref(null);
+    const selfVideo = ref<HTMLVideoElement | null>(null);
+    const remoteVideo = ref<HTMLVideoElement | null>(null);
     const isStreaming = ref(false);
-    const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-    const getConnectedDevices = async (type) => {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      return devices.filter(device => device.kind === type);
-    };
-
-    const loadCameras = async () => {
-      videoCameras.value = await getConnectedDevices('videoinput');
-      console.log('Cameras found:', videoCameras.value);
-    };
-
-    const startVideo = async () => {
-      try {
-        console.log('Starting video');
-        const constraints = { video: true, audio: true };
-        mediaStream.value = await navigator.mediaDevices.getUserMedia(constraints);
-        if (localVideo.value) {
-          localVideo.value.srcObject = mediaStream.value;
-          isStreaming.value = true;
-        }
-      } catch (error) {
-        console.error('Error opening video camera.', error);
-      }
-    };
-    const stopVideo = () => {
-      if (mediaStream.value) {
-        // Zatrzymujemy wszystkie ścieżki w strumieniu
-        mediaStream.value.getTracks().forEach(track => track.stop());
-        mediaStream.value = null;
-        isStreaming.value = false;
-        console.log('Video stopped');
-      }
-    };
-    const startRTCConnection = async () => {
-      try {
-        console.log('Starting RTC connection');
-        peerConnection.value = new RTCPeerConnection(rtcConfig);
-
-        // Dodaj lokalny strumień do PeerConnection
-        mediaStream.value.getTracks().forEach(track => {
-          peerConnection.value.addTrack(track, mediaStream.value);
-        });
-
-        // Odbieranie strumienia zdalnego
-        peerConnection.value.ontrack = (event) => {
-          console.log('Remote stream received');
-          if (remoteVideo.value) {
-            remoteVideo.value.srcObject = event.streams[0];
-          }
-        };
-
-        // Obsługa ICE candidate
-        peerConnection.value.onicecandidate = (event) => {
-          if (event.candidate) {
-            console.log('New ICE candidate:', event.candidate);
-            // W realnej aplikacji należy wysłać candidate do drugiego użytkownika
-          }
-        };
-
-        // Stworzenie oferty
-        const offer = await peerConnection.value.createOffer();
-        await peerConnection.value.setLocalDescription(offer);
-        console.log('Offer created and set as local description:', offer);
-
-        // W realnej aplikacji wyślij ofertę do drugiego użytkownika
-      } catch (error) {
-        console.error('Error starting RTC connection:', error);
-      }
-    };
-
-    onMounted(() => {
-      loadCameras();
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
     });
+
+    const ws = new WebSocket('ws://localhost:3000/ws'); // WebSocket do serwera sygnalizacyjnego
+    const localStream = ref<MediaStream | null>(null);
+
+    ws.onmessage = async (event) => {
+      const message = JSON.parse(event.data);
+
+      if (message.type === 'offer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(message));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        ws.send(JSON.stringify({ type: 'answer', sdp: answer.sdp }));
+      }
+
+      if (message.type === 'answer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(message));
+      }
+
+      if (message.type === 'candidate') {
+        await pc.addIceCandidate(new RTCIceCandidate(message.candidate));
+      }
+    };
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        ws.send(
+          JSON.stringify({ type: 'candidate', candidate: event.candidate })
+        );
+      }
+    };
+
+    pc.ontrack = (event) => {
+      if (remoteVideo.value && event.streams[0]) {
+        remoteVideo.value.srcObject = event.streams[0];
+      }
+    };
+
+    const start = async () => {
+      const constraints = { video: true, audio: true };
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        selfVideo.value!.srcObject = stream;
+        localStream.value = stream;
+
+        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+        isStreaming.value = true;
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify({ type: 'offer', sdp: offer.sdp }));
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
+      }
+    };
+
+    const stop = () => {
+      localStream.value?.getTracks().forEach((track) => track.stop());
+      localStream.value = null;
+      selfVideo.value!.srcObject = null;
+      isStreaming.value = false;
+    };
+
     onUnmounted(() => {
-        stopVideo();
+      stop();
+      pc.close();
+      ws.close();
     });
 
     return {
-        videoCameras,
-        localVideo,
-        remoteVideo,
-        startVideo,
-        stopVideo,
-        startRTCConnection,
-        isStreaming,
+      selfVideo,
+      remoteVideo,
+      start,
+      stop,
+      isStreaming,
     };
   },
-};
+});
 </script>
+
+<style scoped>
+#video-container {
+  max-width: 800px;
+}
+</style>
