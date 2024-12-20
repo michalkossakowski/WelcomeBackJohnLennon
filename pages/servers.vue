@@ -1,6 +1,9 @@
 <template>
   <div class="servers-container">
-    <h1 class="title">Servers</h1>
+      <div class="header-row">
+          <h1 class="title">Servers</h1>
+          <UButton icon="i-heroicons-plus-circle" class="add-button"/>
+      </div>
     <div class="servers-list">
       <UCard
           v-for="server in data"
@@ -27,6 +30,11 @@ const { data } = await useFetch('/api/servers/get');
 const navigateToServer = (serverId: string) => {
   router.push(`/server/${serverId}`);
 };
+
+const addServer = () => {
+
+}
+
 </script>
 
 <style scoped>
@@ -36,11 +44,23 @@ const navigateToServer = (serverId: string) => {
   padding: 20px;
 }
 
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 0;
+}
+
+.add-button {
+    width: auto;
+    height: 32px;
 }
 
 .servers-list {
