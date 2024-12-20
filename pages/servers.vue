@@ -1,19 +1,61 @@
 <template>
   <div class="servers-container">
-      <div class="header-row">
-          <h1 class="title">Servers</h1>
-          <UButton icon="i-heroicons-plus-circle" class="add-button"/>
-      </div>
+    <div class="header-row">
+      <h1 class="title">Servers</h1>
+      <UButton
+          icon="i-heroicons-plus-circle"
+          class="add-button"
+          @click="showAddServer = !showAddServer">
+        Create a server
+      </UButton>
+    </div>
     <div class="servers-list">
+      <UCard v-if="showAddServer" class="server-card add-server-card">
+        <template #header>
+          <div class="add-server-content">
+            <i class="server-icon" />
+            <div class="input-group">
+              <span class="input-label">Name:</span>
+              <UInput
+                  v-model="newServerName"
+                  placeholder="Enter server name"
+                  class="name-input"
+                  @keyup.enter="submitNewServer"
+              />
+            </div>
+            <div class="action-buttons">
+              <UButton
+                  icon="i-heroicons-x-mark"
+                  color="gray"
+                  variant="ghost"
+                  class="action-button"
+                  @click="cancelAdd"
+              />
+              <UButton
+                  icon="i-heroicons-check"
+                  color="green"
+                  variant="ghost"
+                  class="action-button"
+                  :disabled="!newServerName.trim()"
+                  @click="submitNewServer"
+              />
+            </div>
+          </div>
+        </template>
+      </UCard>
+
       <UCard
-          v-for="server in data"
+          v-for="server in sortedServers"
           :key="server.id"
           class="server-card"
-          @click="navigateToServer(server.id)">
+          @click="navigateToServer(server.id)"
+      >
         <template #header>
           <div class="header-content">
             <i class="server-icon" />
-            <span>{{ server.title }}</span>
+            <div class="server-info">
+              <span class="server-title">{{ server.title }}</span>
+            </div>
           </div>
         </template>
       </UCard>
@@ -23,18 +65,52 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
+import { Server } from '~/models/serverModel';
 
 const router = useRouter();
-const { data } = await useFetch('/api/servers/get');
+const { data, refresh } = await useFetch<Server[]>('/api/servers/get');
+
+const showAddServer = ref(false);
+const newServerName = ref('');
+
+const sortedServers = computed(() => {
+  if (!data.value) return []; // if there's no data
+  return [...data.value].sort((a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+});
 
 const navigateToServer = (serverId: string) => {
   router.push(`/server/${serverId}`);
 };
 
-const addServer = () => {
+const cancelAdd = () => {
+  showAddServer.value = false;
+  newServerName.value = '';
+};
 
-}
+const submitNewServer = async () => {
+  if (!newServerName.value.trim()) return;
 
+  const newServer = {
+    id: crypto.randomUUID(),
+    title: newServerName.value.trim(),
+    creatorId: 'current-user-id' // Replace with actual user ID
+  };
+
+  try {
+    await useFetch('/api/servers/add', {
+      method: 'POST',
+      body: newServer
+    });
+
+    await refresh();
+    cancelAdd();
+  } catch (error) {
+    console.error('Error adding server:', error);
+  }
+};
 </script>
 
 <style scoped>
@@ -45,22 +121,22 @@ const addServer = () => {
 }
 
 .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .title {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: left;
-    margin-bottom: 0;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: left;
+  margin-bottom: 0;
 }
 
 .add-button {
-    width: auto;
-    height: 32px;
+  width: auto;
+  height: 32px;
 }
 
 .servers-list {
@@ -91,5 +167,62 @@ const addServer = () => {
   height: 24px;
   background-color: #ddd;
   border-radius: 50%;
+}
+
+.add-server-card {
+  border: 2px dashed #ddd;
+  cursor: default;
+}
+
+.add-server-card:hover {
+  transform: none;
+}
+
+.add-server-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.input-label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.name-input {
+  flex-grow: 1;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  width: 32px;
+  height: 32px;
+}
+
+.server-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.server-title {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.server-date {
+  font-size: 12px;
+  color: #666;
 }
 </style>
