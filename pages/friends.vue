@@ -1,4 +1,4 @@
 <template>
+    <AddFriend/>
     <FriendsList/>
 </template>
-

@@ -24,7 +24,7 @@
         </div>
 
         <footer>
-            @2024 Made by Weryk Kosak and Krzyś special thanks to Billie Eilish
+            @2024 Made by Weryk and Kosak special thanks to Billie Eilish
         </footer>
 
         <UNotifications />
