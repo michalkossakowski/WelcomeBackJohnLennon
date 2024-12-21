@@ -26,9 +26,17 @@ export default defineEventHandler(async (event) => {
         messages.push(body);
         await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
 
-        sendToChannel(body.channelId, body);
-        sendNotifications(body);
+        const channelData = await fs.readFile("./db/channels.json", 'utf8');
+        const channels = JSON.parse(channelData);
+        const channel = channels.find((ch: { id: string }) => ch.id === body.channelId);
 
+        const serverData = await fs.readFile("./db/servers.json", 'utf8');
+        const servers = JSON.parse(serverData);
+        const server = servers.find((s: { id: string }) => s.id === channel.serverId);
+
+        sendToChannel(body);
+        sendNotifications(body, server.title, channel.title);
+        console.log("ccccccccccccccccccc: "+channel.title);
         return {
             status: 'success',
             message: 'Message added',

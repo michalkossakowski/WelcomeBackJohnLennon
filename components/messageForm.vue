@@ -12,12 +12,12 @@
 <script setup lang="ts">
 import { ref, defineEmits } from 'vue';
 import { Message } from '../models/messageModel';
+import type { User } from '~/models/userModel'
 
 const props = defineProps({
-    username: {
-        type: String,
+    user: {
+        type: Object,
         required: true,
-        default: 'Guest',
     },
     channelId: {
         type: String,
@@ -25,7 +25,7 @@ const props = defineProps({
     },
 })
 
-const message = ref<Message>(new Message('', '', new Date(), '', ''));
+const message = ref<Message>(new Message('', '', new Date(),'' , '', ''));
 
 const emit = defineEmits();
 
@@ -34,7 +34,8 @@ const submitForm = async () => {
         message.value.id = Math.random().toString(36).slice(2, 12);
         message.value.channelId = props.channelId;
         message.value.publishDate = new Date();
-        message.value.author = props.username;
+        message.value.author = props.user.username;
+        message.value.authorId = props.user.id;
 
         await $fetch('/api/messages/add', {
             method: 'POST',
@@ -46,7 +47,7 @@ const submitForm = async () => {
 
         emit('newMessage', message.value);
 
-        message.value = new Message('', '', new Date(), '', '');
+        message.value = new Message('', '', new Date(), '', '', '');
     } catch (err) {
         console.error('Message send error: ' + err);
     }
