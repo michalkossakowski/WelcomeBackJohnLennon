@@ -3,6 +3,43 @@
         <div class="sidebar">
             <div class="channels">
                 <h3>{{ serverName }}</h3>
+
+                <!-- Add Channel Button -->
+                <UButton
+                    icon="i-heroicons-plus-circle"
+                    class="add-button mb-2 w-full"
+                    @click="showAddChannel = !showAddChannel"
+                >
+                    Add Channel
+                </UButton>
+
+                <!-- Add Channel Form -->
+                <div v-if="showAddChannel" class="new-channel-form mb-2">
+                    <div class="flex items-center bg-gray-800 p-2 rounded">
+                        <UInput
+                            v-model="newChannelName"
+                            placeholder="Channel name"
+                            class="flex-grow"
+                            @keyup.enter="submitNewChannel"
+                        />
+                        <UButton
+                            icon="i-heroicons-x-mark"
+                            color="gray"
+                            variant="ghost"
+                            class="action-button"
+                            @click="cancelAdd"
+                        />
+                        <UButton
+                            icon="i-heroicons-check"
+                            color="green"
+                            variant="ghost"
+                            class="action-button"
+                            :disabled="!newChannelName.trim()"
+                            @click="submitNewChannel"
+                        />
+                    </div>
+                </div>
+
                 <ul>
                     <li
                         v-for="channel in channels"
@@ -33,8 +70,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { Channel } from '~/models/channelModel'
-import { Server } from '~/models/serverModel'
+import { type Channel } from '~/models/channelModel'
+import { type Server } from '~/models/serverModel'
 import MessagesFeed from '~/components/messagesFeed.vue';
 
 interface ChannelsResponse {
@@ -47,6 +84,10 @@ const serverId = route.params.serverId as string;
 const channels = ref<Channel[]>([]);
 const serverName = ref('Loading...');
 const currentChannelId = ref<string | null>(null);
+
+// New channel state
+const showAddChannel = ref(false);
+const newChannelName = ref('');
 
 const fetchServerDetails = async () => {
     const { data } = await useFetch<Server>(`/api/servers/${serverId}`);
@@ -62,8 +103,32 @@ const selectChannel = (channelId: string) => {
     currentChannelId.value = channelId;
 };
 
-const createNewChannel = () => {
-    // Placeholder for creating a channel
+const cancelAdd = () => {
+    showAddChannel.value = false;
+    newChannelName.value = '';
+};
+
+const submitNewChannel = async () => {
+    if (!newChannelName.value.trim()) return;
+
+    const newChannel = {
+        id: crypto.randomUUID(),
+        serverId: serverId,
+        title: newChannelName.value.trim(),
+        creatorId: 'current-user-id' // Replace with actual user ID
+    };
+
+    try {
+        await useFetch('/api/channels/add', {
+            method: 'POST',
+            body: newChannel
+        });
+
+        await fetchChannels(); // Refresh the channels list
+        cancelAdd();
+    } catch (error) {
+        console.error('Error adding channel:', error);
+    }
 };
 
 onMounted(fetchServerDetails);
@@ -122,5 +187,20 @@ onMounted(fetchChannels);
 .no-channel-message {
     font-size: 18px;
     font-weight: bold;
+}
+
+.add-button {
+    width: 100%;
+    height: 32px;
+    margin-bottom: 0.5rem;
+}
+
+.new-channel-form {
+    margin-bottom: 0.5rem;
+}
+
+.action-button {
+    width: 32px;
+    height: 32px;
 }
 </style>
