@@ -68,9 +68,7 @@ const fetchUser = async () => {
 watch(data, (newMessage) => {
     if (newMessage) {
         const message: Message = JSON.parse(newMessage as string);
-        if(message.channelId === props.channelId){
-            addMessage(message);
-        }
+        addMessage(message);
     }
 });
 
