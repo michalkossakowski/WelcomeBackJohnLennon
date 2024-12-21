@@ -33,11 +33,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue';
-import { useRouter } from 'vue-router';
 import avatarImage from './public/assets/avatar.jpg';
 import type { User } from '~/models/userModel';
 
-const router = useRouter();
 const user = ref<User | null>(null);
 const toast = useToast()
 const isLoading = ref(true);
@@ -52,16 +50,20 @@ const fetchUser = async () => {
     } catch (error) {
         user.value = null;
     } finally {
-        isLoading.value = false; // Set isLoading to false once the request completes
+        isLoading.value = false; 
+        if(user.value){
+            setupWebSocket();
+        }
     }
 };
 
 const setupWebSocket = () => {
-    const socket = new WebSocket('ws://localhost:3001');
-    //const socket = new WebSocket('https://<adrestunelu>/');
+    const socket = new WebSocket(`ws://localhost:3001?userId=${user.value?.id}`);
     socket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        toast.add({ title: `New Message: ${message.content}`,description: `Channel: ${message.channelId}`});
+        const {message,serverName,channelName} = JSON.parse(event.data);
+        if(message.authorId !== user.value?.id){
+            toast.add({ title: `From: /${serverName}/${channelName}`,description: `Message: ${message.content}`});
+        }
     };
 };
 
@@ -105,7 +107,6 @@ const logout = async () => {
 
 onMounted(() => {
     fetchUser();
-    setupWebSocket();
 });
 </script>
 

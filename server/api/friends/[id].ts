@@ -10,8 +10,6 @@ export default defineEventHandler(async (event) => {
         const friendsData = await fs.readFile(friendsFilePath, 'utf8');
         const friendIds: string[] = JSON.parse(friendsData);
 
-        console.log("=============FIDS:"+friendIds);
-
         const usersFilePath = './db/users.json'
         const data = await fs.readFile(usersFilePath, 'utf8')
         const users: User[] = JSON.parse(data)

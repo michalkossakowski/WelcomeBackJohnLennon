@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="messageForm">
-            <MessageForm :username="user?.username" :channelId="channelId" />
+            <MessageForm :user="user" :channelId="channelId" />
         </div>
     </div>
 </template>
@@ -95,6 +95,7 @@ const fetchMessages = async () => {
                     message.channelId,
                     message.publishDate,
                     message.author,
+                    message.authorId,
                     message.content
                 )
             );
