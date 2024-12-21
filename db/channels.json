@@ -28,5 +28,65 @@
         "serverId": "d7ea5d8b-02df-47f3-82bf-5054d5816f4d",
         "title": "123",
         "creatorId": "i2z1879ffm"
+    },
+    {
+        "id": "d84d6068-54e2-4f23-8bb5-778ce552f363",
+        "serverId": "PV",
+        "title": "Chat with: admin",
+        "creatorId": "i2z1879ffm"
+    },
+    {
+        "id": "7bdf3569-4be0-4c01-a892-8ecfa09fb001",
+        "serverId": "PV",
+        "title": "Chat with: admin",
+        "creatorId": "i2z1879ffm"
+    },
+    {
+        "id": "5cbb3561-792d-480b-91da-85f1f5e978d2",
+        "serverId": "PV",
+        "title": "Chat with: admin",
+        "creatorId": "i2z1879ffm"
+    },
+    {
+        "id": "f32f98e0-ad12-4ae3-abe1-5504255d92b6",
+        "serverId": "PV",
+        "title": "Chat with: FreddieBatoniury",
+        "creatorId": "i2z1879ffm"
+    },
+    {
+        "id": "26d36201-58c2-4140-a961-76952b3a2fe0",
+        "serverId": "PV",
+        "title": "Chat with: admin",
+        "creatorId": "9999999999 +  9999999999"
+    },
+    {
+        "id": "ad606255-2541-4501-837d-f23007093030",
+        "serverId": "PV",
+        "title": "Chat with: admin",
+        "creatorId": "i2z1879ffm +  9999999999"
+    },
+    {
+        "id": "610dbe7c-e71d-4dd0-96de-4afa3ebcc1da",
+        "serverId": "PV",
+        "title": "Chat with: krzysz",
+        "creatorId": "9999999999 +  i2z1879ffm"
+    },
+    {
+        "id": "87e6fca6-ba7d-480f-9f2e-bb27059ecee3",
+        "serverId": "PV",
+        "title": "Chat between: admin and admin",
+        "creatorId": "99999999999999999999"
+    },
+    {
+        "id": "e2e358b7-aac6-4521-8637-cbcd04a6dc5d",
+        "serverId": "PV",
+        "title": "Chat between: admin and admin",
+        "creatorId": "99999999999999999999"
+    },
+    {
+        "id": "b8cc1744-820a-46b9-9fbf-954a1878e868",
+        "serverId": "PV",
+        "title": "Chat between: admin and admin",
+        "creatorId": "99999999999999999999"
     }
 ]

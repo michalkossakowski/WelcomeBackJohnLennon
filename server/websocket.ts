@@ -58,7 +58,15 @@ const sendToChannel = (message: Message) => {
 };
 
 const sendNotifications = (message: Message, serverName: string, channelName: string) => {
-    connectedClients.forEach((clientData, client: WebSocket) => {
+    connectedClients.forEach((client: WebSocket) => {
+        if (client.readyState === 1) {
+            client.send(JSON.stringify({ message, serverName, channelName }));
+        }
+    });
+};
+
+const sendChatNotifications = (message: Message, serverName: string, channelName: string) => {
+    connectedClients.forEach((client: WebSocket) => {
         if (client.readyState === 1) {
             client.send(JSON.stringify({ message, serverName, channelName }));
         }

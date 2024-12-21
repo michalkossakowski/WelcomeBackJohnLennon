@@ -26,16 +26,21 @@ export default defineEventHandler(async (event) => {
         messages.push(body);
         await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
 
-        const channelData = await fs.readFile("./db/channels.json", 'utf8');
-        const channels = JSON.parse(channelData);
-        const channel = channels.find((ch: { id: string }) => ch.id === body.channelId);
-
-        const serverData = await fs.readFile("./db/servers.json", 'utf8');
-        const servers = JSON.parse(serverData);
-        const server = servers.find((s: { id: string }) => s.id === channel.serverId);
+        if(body.channelId.startsWith("chat")) {
+            sendNotifications(body, "Private", body.author);
+        }
+        else{
+            const channelData = await fs.readFile("./db/channels.json", 'utf8');
+            const channels = JSON.parse(channelData);
+            const channel = channels.find((ch: { id: string }) => ch.id === body.channelId);
+    
+            const serverData = await fs.readFile("./db/servers.json", 'utf8');
+            const servers = JSON.parse(serverData);
+            const server = servers.find((s: { id: string }) => s.id === channel.serverId);
+            sendNotifications(body, server.title, channel.title);
+        }
 
         sendToChannel(body);
-        sendNotifications(body, server.title, channel.title);
         
         return {
             status: 'success',
