@@ -29,7 +29,7 @@
                         </div>
 
                         <div class="buttons">
-                            <button @click="console.log(`Message Ja: ${user?.id} Ziomo: ${friend.id}`)">
+                            <button @click="openChatWith(friend)">
                                 <UIcon class="icon w-5 h-5" name="i-heroicons-chat-bubble-left-right"/>
                             </button>
                             <button  @click="console.log(`Video Ja: ${user?.id} Ziomo: ${friend.id}`)">
@@ -47,11 +47,14 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import type { User, UserBasics } from '~/models/userModel'
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const user = ref<User | undefined>(undefined)
 const friends = ref<UserBasics[]>([]);
 const searchFriend = ref<string>('');
 const isLoading = ref(true);
+const selectedFriend = ref<UserBasics | null>(null);
 
 const fetchUser = async () => {
     try {
@@ -101,6 +104,25 @@ const alertMessage = computed(() => {
 
 const handleFriendAdded = (newFriend: UserBasics) => {
     friends.value.push(newFriend);
+};
+
+
+const openChatWith = async (friend: UserBasics) => {
+
+
+    try {
+        await useFetch('/api/chats/get', {
+            method: 'POST',
+            body: {
+                userId: user.value?.id,
+                friendId: friend.id,
+            }
+        }).then(response => {
+            router.push(`/privateMessages/${response.data.value}/${friend.username}`);
+        })
+    } catch (error) {
+        console.error('Error with creating chat channel:', error);
+    }
 };
 
 onMounted(() => {

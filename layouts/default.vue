@@ -82,6 +82,7 @@ const links = computed(() => {
             { label: 'Servers', icon: 'i-heroicons-server', to: '/servers' },
             { label: 'Friends', icon: 'i-heroicons-user-group', to: '/friends' },
             { label: 'Video', icon: 'i-heroicons-video-camera', to: '/video' },
+            { label: 'Help', icon: 'i-heroicons-question-mark-circle', to: '/help' },
         ],
     ];
 });
