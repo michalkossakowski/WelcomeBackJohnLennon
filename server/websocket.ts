@@ -4,7 +4,7 @@ import { Message } from '~/models/messageModel';
 const wss = new WebSocketServer({ port: 3001 });
 
 const clientsByChannel = new Map<string, Set<WebSocket>>();
-const connectedClients = new Set<WebSocket>();
+const connectedClients = new Set<{ userId: string, ws: WebSocket }>();
 
 wss.on('connection', (ws, req) => {
     const url = new URL(req.url || '', `http://${req.headers.host}`);
@@ -14,7 +14,7 @@ wss.on('connection', (ws, req) => {
     if (channelId) {
         handleChannelConnection(ws, userId!, channelId);
     } else {
-        handleNotificationConnection(ws, userId);
+        handleNotificationConnection(ws, userId!);
     }
 });
 
@@ -37,17 +37,17 @@ function handleChannelConnection(ws: WebSocket, userId: string, channelId: strin
     });
 }
 
-function handleNotificationConnection(ws: WebSocket, userId: string | null) {
-    connectedClients.add(ws)
+function handleNotificationConnection(ws: WebSocket, userId: string ) {
+    connectedClients.add({ userId, ws });
     console.log(`User: ${userId} connected to notifications clients: ${connectedClients.size}`);
 
     ws.on('close', () => {
-        connectedClients.delete(ws);
+        connectedClients.delete({ userId, ws });
         console.log(`User: ${userId} disconnected from notifications clients: ${connectedClients.size}`);
     });
 }
 
-const sendToChannel = (message: Message) => {
+const sendMessageToChannel = (message: Message) => {
     const clients = clientsByChannel.get(message.channelId);
     clients!.forEach((client: WebSocket) => {
         if (client.readyState === 1) {
@@ -57,20 +57,29 @@ const sendToChannel = (message: Message) => {
 
 };
 
-const sendNotifications = (message: Message, serverName: string, channelName: string) => {
-    connectedClients.forEach((client: WebSocket) => {
-        if (client.readyState === 1) {
-            client.send(JSON.stringify({ message, serverName, channelName }));
+const sendServerNotifications = (message: Message, serverName: string, channelName: string) => {
+    connectedClients.forEach(({ userId, ws }: { userId: string, ws: WebSocket }) => {
+        if (ws.readyState === 1) {
+            ws.send(JSON.stringify({ message, serverName, channelName}));
         }
     });
 };
 
-const sendChatNotifications = (message: Message, serverName: string, channelName: string) => {
-    connectedClients.forEach((client: WebSocket) => {
-        if (client.readyState === 1) {
-            client.send(JSON.stringify({ message, serverName, channelName }));
+const sendChatNotifications = (message: Message, receiverId: string, channelName: string) => {
+
+    const receiverClient = Array.from(connectedClients).find(({ userId, ws }: { userId: string, ws: WebSocket }) => 
+        ws.readyState === WebSocket.OPEN && userId === receiverId
+    );
+    if (receiverClient) {
+        const { ws } = receiverClient;
+        try {
+            ws.send(JSON.stringify({ message, serverName: "Private", channelName }));
+        } catch (error) {
+            console.error(`Error sending message to ${receiverId}:`, error);
         }
-    });
+    } else {
+        console.log(`No client with id: ${receiverId} is offline`);
+    }
 };
 
-export { sendToChannel, sendNotifications };
+export { sendMessageToChannel, sendServerNotifications, sendChatNotifications };
