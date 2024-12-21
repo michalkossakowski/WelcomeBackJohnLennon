@@ -49,7 +49,7 @@ const serverName = ref('Loading...');
 const currentChannelId = ref<string | null>(null);
 
 const fetchServerDetails = async () => {
-    const { data } = useFetch<Server>(`/api/servers/${serverId}`);
+    const { data } = await useFetch<Server>(`/api/servers/${serverId}`);
     serverName.value = data.value?.title || "internal pointer varaiabul";
 };
 
