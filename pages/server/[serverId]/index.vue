@@ -72,16 +72,12 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { type Channel } from '~/models/channelModel'
 import { type Server } from '~/models/serverModel'
+import { type UserBasics } from '~/models/userModel';
 import MessagesFeed from '~/components/messagesFeed.vue';
 
 interface ChannelsResponse {
     channels: Channel[];
     message?: string;
-}
-
-interface User {
-    id: string;
-    // add other user properties as needed
 }
 
 const route = useRoute();
@@ -91,7 +87,7 @@ const serverName = ref('Loading...');
 const currentChannelId = ref<string | null>(null);
 
 // User state
-const user = ref<User | null>(null);
+const user = ref<UserBasics | null>(null);
 const isLoading = ref(true);
 
 // New channel state

@@ -1,228 +1,250 @@
 <template>
-  <div class="servers-container">
-    <div class="header-row">
-      <h1 class="title">Servers</h1>
-      <UButton
-          icon="i-heroicons-plus-circle"
-          class="add-button"
-          @click="showAddServer = !showAddServer">
-        Create a server
-      </UButton>
-    </div>
-    <div class="servers-list">
-      <UCard v-if="showAddServer" class="server-card add-server-card">
-        <template #header>
-          <div class="add-server-content">
-            <i class="server-icon" />
-            <div class="input-group">
-              <span class="input-label">Name:</span>
-              <UInput
-                  v-model="newServerName"
-                  placeholder="Enter server name"
-                  class="name-input"
-                  @keyup.enter="submitNewServer"
-              />
-            </div>
-            <div class="action-buttons">
-              <UButton
-                  icon="i-heroicons-x-mark"
-                  color="gray"
-                  variant="ghost"
-                  class="action-button"
-                  @click="cancelAdd"
-              />
-              <UButton
-                  icon="i-heroicons-check"
-                  color="green"
-                  variant="ghost"
-                  class="action-button"
-                  :disabled="!newServerName.trim()"
-                  @click="submitNewServer"
-              />
-            </div>
-          </div>
-        </template>
-      </UCard>
+    <div class="servers-container">
+        <div class="header-row">
+            <h1 class="title">Servers</h1>
+            <UButton
+                icon="i-heroicons-plus-circle"
+                class="add-button"
+                @click="showAddServer = !showAddServer">
+                Create a server
+            </UButton>
+        </div>
+        <div class="servers-list">
+            <UCard v-if="showAddServer" class="server-card add-server-card">
+                <template #header>
+                    <div class="add-server-content">
+                        <i class="server-icon" />
+                        <div class="input-group">
+                            <span class="input-label">Name:</span>
+                            <UInput
+                                v-model="newServerName"
+                                placeholder="Enter server name"
+                                class="name-input"
+                                @keyup.enter="submitNewServer"
+                            />
+                        </div>
+                        <div class="action-buttons">
+                            <UButton
+                                icon="i-heroicons-x-mark"
+                                color="gray"
+                                variant="ghost"
+                                class="action-button"
+                                @click="cancelAdd"
+                            />
+                            <UButton
+                                icon="i-heroicons-check"
+                                color="green"
+                                variant="ghost"
+                                class="action-button"
+                                :disabled="!newServerName.trim()"
+                                @click="submitNewServer"
+                            />
+                        </div>
+                    </div>
+                </template>
+            </UCard>
 
-      <UCard
-          v-for="server in sortedServers"
-          :key="server.id"
-          class="server-card"
-          @click="navigateToServer(server.id)"
-      >
-        <template #header>
-          <div class="header-content">
-            <i class="server-icon" />
-            <div class="server-info">
-              <span class="server-title">{{ server.title }}</span>
-            </div>
-          </div>
-        </template>
-      </UCard>
+            <UCard
+                v-for="server in sortedServers"
+                :key="server.id"
+                class="server-card"
+                @click="navigateToServer(server.id)"
+            >
+                <template #header>
+                    <div class="header-content">
+                        <i class="server-icon" />
+                        <div class="server-info">
+                            <span class="server-title">{{ server.title }}</span>
+                        </div>
+                    </div>
+                </template>
+            </UCard>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
 import { type Server } from '~/models/serverModel';
+import { type UserBasics } from '~/models/userModel';
 
 const router = useRouter();
 const { data, refresh } = await useFetch<Server[]>('/api/servers/get');
+
+// User state
+const user = ref<UserBasics | null>(null);
+const isLoading = ref(true);
 
 const showAddServer = ref(false);
 const newServerName = ref('');
 
 const sortedServers = computed(() => {
-  if (!data.value) return []; // if there's no data
-  return [...data.value].sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+    if (!data.value) return [];
+    return [...data.value].sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 });
 
+const fetchUser = async () => {
+    try {
+        const response = await $fetch('/api/users/get', { method: 'GET' });
+        user.value = response.user;
+        if (!user.value) {
+            return;
+        }
+    } catch (error) {
+        user.value = null;
+    } finally {
+        isLoading.value = false;
+    }
+};
+
 const navigateToServer = (serverId: string) => {
-  router.push(`/server/${serverId}`);
+    router.push(`/server/${serverId}`);
 };
 
 const cancelAdd = () => {
-  showAddServer.value = false;
-  newServerName.value = '';
+    showAddServer.value = false;
+    newServerName.value = '';
 };
 
 const submitNewServer = async () => {
-  if (!newServerName.value.trim()) return;
+    if (!newServerName.value.trim() || !user.value) return;
 
-  const newServer = {
-    id: crypto.randomUUID(),
-    title: newServerName.value.trim(),
-    creatorId: 'current-user-id' // Replace with actual user ID
-  };
+    const newServer = {
+        id: crypto.randomUUID(),
+        title: newServerName.value.trim(),
+        creatorId: user.value.id
+    };
 
-  try {
-    await useFetch('/api/servers/add', {
-      method: 'POST',
-      body: newServer
-    });
+    try {
+        await useFetch('/api/servers/add', {
+            method: 'POST',
+            body: newServer
+        });
 
-    await refresh();
-    cancelAdd();
-  } catch (error) {
-    console.error('Error adding server:', error);
-  }
+        await refresh();
+        cancelAdd();
+    } catch (error) {
+        console.error('Error adding server:', error);
+    }
 };
+
+onMounted(fetchUser);
 </script>
 
 <style scoped>
+
 .servers-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 .header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  text-align: left;
-  margin-bottom: 0;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 0;
 }
 
 .add-button {
-  width: auto;
-  height: 32px;
+    width: auto;
+    height: 32px;
 }
 
 .servers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .server-card {
-  transition: transform 0.3s ease;
-  cursor: pointer;
+    transition: transform 0.3s ease;
+    cursor: pointer;
 }
 
 .server-card:hover {
-  transform: translateY(-3px);
+    transform: translateY(-3px);
 }
 
 .header-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: bold;
-  font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 16px;
 }
 
 .server-icon {
-  width: 24px;
-  height: 24px;
-  background-color: #ddd;
-  border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    background-color: #ddd;
+    border-radius: 50%;
 }
 
 .add-server-card {
-  border: 2px dashed #ddd;
-  cursor: default;
+    border: 2px dashed #ddd;
+    cursor: default;
 }
 
 .add-server-card:hover {
-  transform: none;
+    transform: none;
 }
 
 .add-server-content {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .input-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
 }
 
 .input-label {
-  font-weight: bold;
-  white-space: nowrap;
+    font-weight: bold;
+    white-space: nowrap;
 }
 
 .name-input {
-  flex-grow: 1;
+    flex-grow: 1;
 }
 
 .action-buttons {
-  display: flex;
-  gap: 8px;
+    display: flex;
+    gap: 8px;
 }
 
 .action-button {
-  width: 32px;
-  height: 32px;
+    width: 32px;
+    height: 32px;
 }
 
 .server-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .server-title {
-  font-weight: bold;
-  font-size: 16px;
+    font-weight: bold;
+    font-size: 16px;
 }
 
 .server-date {
-  font-size: 12px;
-  color: #666;
+    font-size: 12px;
+    color: #666;
 }
 </style>
