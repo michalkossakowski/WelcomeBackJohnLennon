@@ -24,7 +24,7 @@
         </div>
 
         <footer>
-            @2024 Made by Weryk Kosak and Krzyś special thanks to Billie Eilish
+            @2024 Made by Weryk and Kosak special thanks to Billie Eilish
         </footer>
 
         <UNotifications />
@@ -168,5 +168,7 @@ header {
 footer {
     padding: 10px;
     text-align: center;
+    margin-top: auto;
+    margin-bottom: 10px;
 }
 </style>

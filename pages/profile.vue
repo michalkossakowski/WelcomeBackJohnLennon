@@ -1,16 +1,25 @@
 <template>
     <div class="profile-container">
-        <h1>User Profile</h1>
-        <div v-if="user" class="space-y-4">
+        <h1 class="title">My Profile</h1>
+        <div v-if="user" class="space-y-4 info">
             <div>
-                <strong>ID:</strong> {{ user.id }}
+                <UAvatar class="avatar"
+                src="./public/assets/avatar.jpg"
+                alt="Avatar"
+                />
             </div>
             <div>
-                <strong>Username:</strong> {{ user.username }}
+                <div>
+                    <strong>Friend Code:</strong> {{ user.id }}
+                </div>
+                <div>
+                    <strong>Username:</strong> {{ user.username }}
+                </div>
+                <div>
+                    <strong>Password:</strong> {{ user.password }}
+                </div>
             </div>
-            <div>
-                <strong>Password:</strong> {{ user.password }}
-            </div>
+
         </div>
         <div v-else>
             <p>Loading...</p>
@@ -67,13 +76,23 @@ onMounted(() => {
 </script>
 
 <style scoped>
-h1 {
+.title {
     font-size: 32px;
-    margin-bottom: 1rem;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 20px;
 }
 
-.profile-container {
+.info{
+    font-size: 24px;
+    text-align: left;
+    display: flex;
+    flex-direction: row;
+}
 
-    margin: 10px;
+.avatar{
+    width: 160px;
+    height: 160px;
+    margin-right: 50px;
 }
 </style>

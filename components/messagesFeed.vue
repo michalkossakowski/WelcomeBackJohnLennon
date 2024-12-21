@@ -87,7 +87,7 @@ const fetchMessages = async () => {
     error.value = null;
 
     try {
-        const data : [] = await $fetch(`/api/messages/${props.channelId}`);
+        const data : any[] = await $fetch(`/api/messages/${props.channelId}`, { method: 'GET' });
         if (data) {
             messages.value = data.map((message: Message) =>
                 new Message(
@@ -108,6 +108,7 @@ const fetchMessages = async () => {
         });
     }
 };
+
 
 const scrollToNewest = () => {
     const messageBox = document.getElementById('messages-box');
