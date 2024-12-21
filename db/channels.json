@@ -1,26 +1,26 @@
 [
     {
         "id": "420",
-        "serverId": "sabrinaStolarz",
+        "serverId": "7b9c0ccb-58a9-448d-96a0-7e808c5bfe3f",
         "title": "Szambiarze",
-        "creatorId": "1"
+        "creatorId": "current-user-id"
     },
     {
         "id": "2115",
-        "serverId": "54323435",
+        "serverId": "7b9c0ccb-58a9-448d-96a0-7e808c5bfe3f",
         "title": "General",
-        "creatorId": "2"
+        "creatorId": "current-user-id"
     },
     {
         "id": "1",
-        "serverId": "54323435",
+        "serverId": "7b9c0ccb-58a9-448d-96a0-7e808c5bfe3f",
         "title": "SALE-Alert",
-        "creatorId": "i2z1879ffm"
+        "creatorId": "current-user-id"
     },
     {
         "id": "2",
-        "serverId": "54323435",
+        "serverId": "7b9c0ccb-58a9-448d-96a0-7e808c5bfe3f",
         "title": "Memy",
-        "creatorId": "i2z1879ffm"
+        "creatorId": "current-user-id"
     }
 ]

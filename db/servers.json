@@ -1,27 +1,26 @@
 [
-    {
-        "id": "PrivateMessages",
-        "title": "PrivateMessages",
-        "creatorId": "0"
-    },
-    {
-        "id": "sabrinaStolarz",
-        "title": "Sabrina Stolarz Funclub",
-        "creatorId": "1"
-    },
-    {
-        "id": "54323435",
-        "title": "Factorio official server",
-        "creatorId": "i2z1879ffm"
-    },
-    {
-        "id": "798656479",
-        "title": "Anioły Nieba",
-        "creatorId": "i2z1879ffm"
-    },
-    {
-        "id": "35645463",
-        "title": "Klatka faradaja",
-        "creatorId": "i2z1879ffm"
-    }
+  {
+    "id": "7b9c0ccb-58a9-448d-96a0-7e808c5bfe3f",
+    "title": "Sabrina Stolarz Funclub",
+    "creatorId": "current-user-id",
+    "createdAt": "2024-12-20T23:38:33.940Z"
+  },
+  {
+    "id": "251302a2-4455-4c92-84da-69b739694423",
+    "title": "Buda Weryka",
+    "creatorId": "current-user-id",
+    "createdAt": "2024-12-20T23:38:46.032Z"
+  },
+  {
+    "id": "09c00eee-15cb-40e4-9c29-25fc70733a33",
+    "title": "Buda Cosaka",
+    "creatorId": "current-user-id",
+    "createdAt": "2024-12-20T23:48:01.848Z"
+  },
+  {
+    "id": "c125ffa9-f852-48bb-aa40-fb9d373f09ca",
+    "title": "Kex's Lands",
+    "creatorId": "current-user-id",
+    "createdAt": "2024-12-20T23:48:16.853Z"
+  }
 ]
