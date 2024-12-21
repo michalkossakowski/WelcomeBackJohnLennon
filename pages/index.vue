@@ -19,12 +19,30 @@
             </UCard>
         </router-link>
 
+        <router-link to="/chats" class="card">
+            <UCard class="card">
+                <template #header>
+                    <UIcon name="i-heroicons-envelope" class="icon" />
+                </template>
+                Private Messages
+            </UCard>
+        </router-link>
+
         <router-link to="/servers" class="card">
             <UCard class="card">
                 <template #header>
                     <UIcon name="i-heroicons-server-stack" class="icon" />
                 </template>
                 Servers
+            </UCard>
+        </router-link>
+
+        <router-link to="/help" class="card">
+            <UCard class="card">
+                <template #header>
+                    <UIcon name="i-heroicons-question-mark-circle" class="icon" />
+                </template>
+                Help
             </UCard>
         </router-link>
     </div>
@@ -37,8 +55,8 @@
 <style scoped>
 
 .icon {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
 }
 
 .cardBox {
@@ -48,6 +66,7 @@
     height: 50vh;
     text-align: center;
     gap: 50px;
+    flex-wrap: wrap;
 }
 
 

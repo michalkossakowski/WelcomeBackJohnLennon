@@ -1,8 +1,8 @@
 <template>
     <div class="friends-container">
         <div class="header flex justify-between items-center mb-4">
-            <h1 class="title">Friends</h1>
-            <AddFriend :userId="user?.id" @friendAdded="handleFriendAdded" />
+            <h1 class="title">Opened Chats:</h1>
+           
         </div>
         <div class="search-container">
             <UInput icon="i-heroicons-magnifying-glass-20-solid" size="sm" color="white" :trailing="false"
@@ -20,7 +20,7 @@
                 title="We are very sorry"
                 :description='alertMessage'
             />
-            <UCard v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
+            <UCard v-for="friend in filteredFriends" :key="friend.id"  @click="openChatWith(friend)" class="friend-card">
                 <template #header>
                     <div class="header-content">
                         <div class="iconName">
@@ -29,14 +29,10 @@
                         </div>
 
                         <div class="buttons">
-                            <button @click="openChatWith(friend)">
+                            <button>
                                 <UIcon class="icon w-5 h-5" name="i-heroicons-chat-bubble-left-right"/>
                             </button>
-                            <button  @click="console.log(`Video Ja: ${user?.id} Ziomo: ${friend.id}`)">
-                                <UIcon class="icon w-5 h-5" name="i-heroicons-video-camera"/>
-                            </button>
                         </div>
-
                     </div>
                 </template>
             </UCard>
@@ -77,6 +73,12 @@ const fetchFriends = async () => {
                 username: user.username,
             })
         )}
+
+        const chatsData  = await $fetch(`/api/chats/${user.value?.id}`, { method: 'GET' });
+
+        friends.value = friends.value.filter(friend => chatsData.includes(friend.id));
+
+        const res  = await $fetch(`/api/friends/${user.value?.id}`, { method: 'GET' });
     } catch (err) {
         console.error('Friends fetch error:', err);
     }finally{
@@ -93,18 +95,13 @@ const filteredFriends = computed(() => {
 
 const alertMessage = computed(() => {
     if (friends.value.length === 0) {
-        return "You don't have any friends, use your friends codes to add them";
+        return "You don't have any opened chats, start new chat in friends sections";
     }
     if (filteredFriends.value.length === 0 && searchFriend.value.trim()) {
-        return `There is no friend with name: "${searchFriend.value.trim()}"`;
+        return `There is no chat opened with friend: "${searchFriend.value.trim()}"`;
     }
     return "";
 });
-
-
-const handleFriendAdded = (newFriend: UserBasics) => {
-    friends.value.push(newFriend);
-};
 
 
 const openChatWith = async (friend: UserBasics) => {
@@ -163,7 +160,8 @@ onMounted(() => {
 
 .friend-card:hover {
     transform: translateY(-3px);
-    color: #96ddb0;
+    color: #4ade80;
+    cursor: pointer;
 }
 
 @media (min-width: 600px) {
