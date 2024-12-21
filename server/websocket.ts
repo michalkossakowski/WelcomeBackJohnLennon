@@ -25,11 +25,11 @@ function handleChannelConnection(ws: WebSocket, userId: string, channelId: strin
 
     const channelClients = clientsByChannel.get(channelId)!;
     channelClients.add(ws);
-    console.log(`User: ${userId} connected to channel: ${channelId}`);
+    console.log(`User: ${userId} connected to channel: ${channelId} clients: ${channelClients.size}`);
 
     ws.on('close', () => {
         channelClients.delete(ws);
-        console.log(`User: ${userId} disconnected from channel: ${channelId}`);
+        console.log(`User: ${userId} disconnected from channel: ${channelId} clients: ${channelClients.size}`);
         if (channelClients.size === 0) {
             clientsByChannel.delete(channelId);
             console.log(`Closed channel: ${channelId}`);
@@ -39,11 +39,11 @@ function handleChannelConnection(ws: WebSocket, userId: string, channelId: strin
 
 function handleNotificationConnection(ws: WebSocket, userId: string | null) {
     connectedClients.add(ws)
-    console.log(`User: ${userId} connected`);
+    console.log(`User: ${userId} connected to notifications clients: ${connectedClients.size}`);
 
     ws.on('close', () => {
         connectedClients.delete(ws);
-        console.log(`User: ${userId} disconnected`);
+        console.log(`User: ${userId} disconnected from notifications clients: ${connectedClients.size}`);
     });
 }
 
