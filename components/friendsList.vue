@@ -8,15 +8,18 @@
             <UInput icon="i-heroicons-magnifying-glass-20-solid" size="sm" color="white" :trailing="false"
                 v-model="searchFriend" type="text" placeholder="Search by username ..." class="search-input" />
         </div>
-
-        <UAlert v-if="filteredFriends.length == 0"
-            icon="i-heroicons-face-frown"
-            color="primary"
-            variant="solid"
-            title="We are very sorry"
-            :description='alertMessage'
-        />
-        <div class="friends-list">
+        <div v-if="isLoading" class="loaderBox">
+            <h1>Loading ...</h1>
+            <UProgress  class="loader" animation="carousel" />
+        </div>
+        <div v-else class="friends-list">
+            <UAlert v-if="filteredFriends.length == 0"
+                icon="i-heroicons-face-frown"
+                color="primary"
+                variant="solid"
+                title="We are very sorry"
+                :description='alertMessage'
+            />
             <UCard v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
                 <template #header>
                     <div class="header-content">
@@ -48,6 +51,7 @@ import type { User, UserBasics } from '~/models/userModel'
 const user = ref<User | undefined>(undefined)
 const friends = ref<UserBasics[]>([]);
 const searchFriend = ref<string>('');
+const isLoading = ref(true);
 
 const fetchUser = async () => {
     try {
@@ -72,6 +76,8 @@ const fetchFriends = async () => {
         )}
     } catch (err) {
         console.error('Friends fetch error:', err);
+    }finally{
+        isLoading.value = false;
     }
 };
 

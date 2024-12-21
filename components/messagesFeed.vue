@@ -147,8 +147,15 @@ onUnmounted(() => {
     margin-right: 10px;
 }
 
+
+.message-feed-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
 #messages-box {
-    max-height: 75vh;
+    max-height: 80vh;
+    min-height: 80vh;
     overflow-y: auto;
 }
 
