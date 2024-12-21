@@ -7,26 +7,38 @@
         <div v-else-if="error">
             {{ error }}
         </div>
-
-        <div v-else id="messages-box">
-            <div v-for="message in messages" :key="message.id" class="card">
-                <UCard>
-                    <template #header>
-                        <b class="username">{{ message.author }}</b>
-                        <span class="time">
-                            {{ new Date(message.publishDate).toLocaleDateString() }}
-                             
-                            {{ new Date(message.publishDate).toLocaleTimeString() }}
-                        </span>
-                    </template>
-                    <div class="message-content">    
-                        {{ message.content }}
-                    </div>
-                </UCard>
+        <div v-else >
+            <div class="search-container">
+                <UInput icon="i-heroicons-magnifying-glass-20-solid" size="sm" color="white" :trailing="false"
+                v-model="searchMessage" type="text" placeholder="Search for message ..." class="search-input" />
             </div>
-        </div>
-        <div class="messageForm">
-            <MessageForm :user="user" :channelId="channelId" />
+            <div id="messages-box">
+                <UAlert v-if="filteredMessages.length == 0"
+                icon="i-heroicons-face-frown"
+                color="primary"
+                variant="solid"
+                title="No messages found"
+                :description='alertMessage'
+                />
+                <div v-for="message in filteredMessages" :key="message.id" class="card">
+                    <UCard>
+                        <template #header>
+                            <b class="username">{{ message.author }}</b>
+                            <span class="time">
+                                {{ new Date(message.publishDate).toLocaleDateString() }}
+                                
+                                {{ new Date(message.publishDate).toLocaleTimeString() }}
+                            </span>
+                        </template>
+                        <div class="message-content">    
+                            {{ message.content }}
+                        </div>
+                    </UCard>
+                </div>
+            </div>
+            <div class="messageForm">
+                <MessageForm :user="user" :channelId="channelId" />
+            </div>
         </div>
     </div>
 </template>
@@ -49,7 +61,7 @@ const props = defineProps({
 const messages = ref<Message[]>([]);
 const loading = ref<boolean>(false);
 const error = ref<string | null>(null);
-
+const searchMessage = ref<string>('');
 const wsUrl = ref<string | undefined>(undefined);
 const { data, close: closeWebSocket } = useWebSocket(wsUrl, { immediate: false });
 
@@ -70,6 +82,23 @@ watch(data, (newMessage) => {
         const message: Message = JSON.parse(newMessage as string);
         addMessage(message);
     }
+});
+
+const filteredMessages = computed(() => {
+    if (!searchMessage.value) return messages.value;
+    return messages.value.filter(message =>
+        message.content.toLowerCase().includes(searchMessage.value.toLowerCase())
+    );
+});
+
+const alertMessage = computed(() => {
+    if (messages.value.length === 0) {
+        return "This chat is empty, be the first to send a message!";
+    }
+    if (filteredMessages.value.length === 0 && searchMessage.value.trim()) {
+        return `There is no messages with: "${searchMessage.value.trim()}" inside`;
+    }
+    return "";
 });
 
 
@@ -152,13 +181,17 @@ onUnmounted(() => {
     justify-content: space-between;
 }
 #messages-box {
-    max-height: 80vh;
-    min-height: 80vh;
+    max-height: 70vh;
+    min-height: 70vh;
     overflow-y: auto;
     padding-right: 20px;
 }
 
 .messageForm{
     margin-top: 1vh;
+}
+.search-container{
+    margin-top: 1vh;
+    margin-bottom: 1vh;
 }
 </style>
