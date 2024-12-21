@@ -79,15 +79,38 @@ interface ChannelsResponse {
     message?: string;
 }
 
+interface User {
+    id: string;
+    // add other user properties as needed
+}
+
 const route = useRoute();
 const serverId = route.params.serverId as string;
 const channels = ref<Channel[]>([]);
 const serverName = ref('Loading...');
 const currentChannelId = ref<string | null>(null);
 
+// User state
+const user = ref<User | null>(null);
+const isLoading = ref(true);
+
 // New channel state
 const showAddChannel = ref(false);
 const newChannelName = ref('');
+
+const fetchUser = async () => {
+    try {
+        const response = await $fetch('/api/users/get', { method: 'GET' });
+        user.value = response.user;
+        if (!user.value) {
+            return;
+        }
+    } catch (error) {
+        user.value = null;
+    } finally {
+        isLoading.value = false;
+    }
+};
 
 const fetchServerDetails = async () => {
     const { data } = await useFetch<Server>(`/api/servers/${serverId}`);
@@ -109,13 +132,13 @@ const cancelAdd = () => {
 };
 
 const submitNewChannel = async () => {
-    if (!newChannelName.value.trim()) return;
+    if (!newChannelName.value.trim() || !user.value) return;
 
     const newChannel = {
         id: crypto.randomUUID(),
         serverId: serverId,
         title: newChannelName.value.trim(),
-        creatorId: 'current-user-id' // Replace with actual user ID
+        creatorId: user.value.id // Now using the actual user ID
     };
 
     try {
@@ -131,8 +154,11 @@ const submitNewChannel = async () => {
     }
 };
 
-onMounted(fetchServerDetails);
-onMounted(fetchChannels);
+onMounted(async () => {
+    await fetchUser();
+    await fetchServerDetails();
+    await fetchChannels();
+});
 </script>
 
 <style scoped>
