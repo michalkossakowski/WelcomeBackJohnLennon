@@ -66,7 +66,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
-import { Server } from '~/models/serverModel';
+import { type Server } from '~/models/serverModel';
 
 const router = useRouter();
 const { data, refresh } = await useFetch<Server[]>('/api/servers/get');

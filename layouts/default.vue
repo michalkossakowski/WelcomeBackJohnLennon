@@ -77,10 +77,10 @@ const links = computed(() => {
         [
             { label: 'Home', icon: 'i-heroicons-home', to: '/' },
             { label: 'Servers', icon: 'i-heroicons-server', to: '/servers' },
+            { label: 'Friends', icon: 'i-heroicons-user-group', to: '/friends' },
             { label: 'Messages', icon: 'i-heroicons-envelope', to: '/messages' },
             { label: 'Messages2', icon: 'i-heroicons-envelope', to: '/messages2' },
             { label: 'Video', icon: 'i-heroicons-video-camera', to: '/video' },
-            { label: 'Friends', icon: 'i-heroicons-user-group', to: '/friends' },
         ],
     ];
 });
