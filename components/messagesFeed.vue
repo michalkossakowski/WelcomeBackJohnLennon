@@ -25,9 +25,9 @@
                 </UCard>
             </div>
         </div>
-
-        <MessageForm :username="user?.username" :channelId="channelId" />
-
+        <div class="messageForm">
+            <MessageForm :username="user?.username" :channelId="channelId" />
+        </div>
     </div>
 </template>
 
@@ -150,13 +150,16 @@ onUnmounted(() => {
 
 .message-feed-container {
     display: flex;
-    flex-direction: column;
-    height: 100%;
+    justify-content: space-between;
 }
 #messages-box {
     max-height: 80vh;
     min-height: 80vh;
     overflow-y: auto;
+    padding-right: 20px;
 }
 
+.messageForm{
+    margin-top: 1vh;
+}
 </style>
