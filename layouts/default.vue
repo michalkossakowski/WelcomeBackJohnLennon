@@ -39,6 +39,7 @@ import type { User } from '~/models/userModel';
 const user = ref<User | null>(null);
 const toast = useToast()
 const isLoading = ref(true);
+const config = useRuntimeConfig();
 
 const fetchUser = async () => {
     try {
@@ -58,7 +59,7 @@ const fetchUser = async () => {
 };
 
 const setupWebSocket = () => {
-    const socket = new WebSocket(`ws://localhost:3001?userId=${user.value?.id}`);
+    const socket = new WebSocket(`${config.public.wsUrl}?userId=${user.value?.id}`);
     socket.onmessage = (event) => {
         const {message,serverName,channelName} = JSON.parse(event.data);
         if(message.authorId !== user.value?.id){

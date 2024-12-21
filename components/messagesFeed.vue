@@ -37,6 +37,7 @@ import { useWebSocket } from '@vueuse/core';
 import { Message } from '../models/messageModel';
 import MessageForm from './messageForm.vue';
 import type { User } from '~/models/userModel'
+const config = useRuntimeConfig();
 
 const props = defineProps({
     channelId: {
@@ -58,8 +59,7 @@ const fetchUser = async () => {
     try {
         const response = await $fetch('/api/users/get', { method: 'GET' })
         user.value = response.user
-        wsUrl.value = `ws://localhost:3001?channelId=${props.channelId}&userId=${user.value?.id}`;
-        //wsUrl.value = `https://<adrestunelu>?channelId=${props.channelId}&userId=${user.value?.id}`;
+        wsUrl.value = `${config.public.wsUrl}?channelId=${props.channelId}&userId=${user.value?.id}`;
     } catch (error) {
         user.value = null
     }

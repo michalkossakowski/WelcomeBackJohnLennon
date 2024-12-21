@@ -9,5 +9,10 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxt/ui"]
+  modules: ["@nuxt/ui"],
+  runtimeConfig: {
+    public: {
+      wsUrl:  'ws://localhost:3001', // Adres domyślny, jeśli nie ma zmiennej środowiskowej
+    },
+  },
 })

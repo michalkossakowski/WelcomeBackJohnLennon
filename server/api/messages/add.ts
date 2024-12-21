@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
         sendToChannel(body);
         sendNotifications(body, server.title, channel.title);
-        console.log("ccccccccccccccccccc: "+channel.title);
+        
         return {
             status: 'success',
             message: 'Message added',
