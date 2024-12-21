@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { Message } from '~/models/messageModel';
-import { sendToChannel, sendNotifications } from '../../websocket';
+import { sendMessageToChannel, sendChatNotifications, sendServerNotifications } from '../../websocket';
 
 export default defineEventHandler(async (event) => {
     try {
@@ -27,7 +27,10 @@ export default defineEventHandler(async (event) => {
         await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
 
         if(body.channelId.startsWith("chat")) {
-            sendNotifications(body, "Private", body.author);
+            let receiverId = body.channelId;
+            receiverId = receiverId.replace("chat", "");
+            receiverId = receiverId.replace(body.authorId, "");
+            sendChatNotifications(body, receiverId, body.author);
         }
         else{
             const channelData = await fs.readFile("./db/channels.json", 'utf8');
@@ -37,10 +40,10 @@ export default defineEventHandler(async (event) => {
             const serverData = await fs.readFile("./db/servers.json", 'utf8');
             const servers = JSON.parse(serverData);
             const server = servers.find((s: { id: string }) => s.id === channel.serverId);
-            sendNotifications(body, server.title, channel.title);
+            sendServerNotifications(body, server.title, channel.title);
         }
 
-        sendToChannel(body);
+        sendMessageToChannel(body);
         
         return {
             status: 'success',

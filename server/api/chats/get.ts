@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
         const existingChat = userChats.find(chat => chat.friendId === friendId);
 
         if (!existingChat) {
-            chatId = "chat"+Math.random().toString(36).slice(2, 12).toString();
+            chatId = "chat"+userId+friendId;
 
             userChats.push({ chatId: chatId, friendId: friendId });
             await fs.writeFile(userFilePath, JSON.stringify(userChats, null, 2), 'utf8');
