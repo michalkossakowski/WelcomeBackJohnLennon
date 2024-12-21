@@ -1,4 +1,3 @@
 <template>
-    <AddFriend/>
     <FriendsList/>
 </template>

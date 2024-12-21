@@ -1,10 +1,12 @@
 <template>
     <div class="friends-container">
-        <h1 class="title">Friends</h1>
-
+        <div class="header flex justify-between items-center mb-4">
+            <h1 class="title">Friends</h1>
+            <AddFriend :userId="user?.id" @friendAdded="handleFriendAdded" />
+        </div>
         <div class="search-container">
             <UInput icon="i-heroicons-magnifying-glass-20-solid" size="sm" color="white" :trailing="false"
-                v-model="searchFriend" type="text" placeholder="Search by username..." class="search-input" />
+                v-model="searchFriend" type="text" placeholder="Search by username ..." class="search-input" />
         </div>
 
         <UAlert v-if="filteredFriends.length == 0"
@@ -12,7 +14,7 @@
             color="primary"
             variant="solid"
             title="We are very sorry"
-            :description='`There is no friend with name: "${searchFriend}"`'
+            :description='alertMessage'
         />
         <div class="friends-list">
             <UCard v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
@@ -53,16 +55,21 @@ const fetchUser = async () => {
         user.value = response.user
     } catch (error) {
         user.value = undefined
+    }finally{
+        fetchFriends();
     }
 }
 
 const fetchFriends = async () => {
     try {
-        const response = await $fetch(`/api/users/getFriends`, { method: 'GET' });
-        friends.value = response.friends.map((user: UserBasics) => ({
-            id: user.id,
-            username: user.username,
-        }));
+        const response  = await $fetch(`/api/friends/${user.value?.id}`, { method: 'GET' });
+        console.log(response);
+        if ('friends' in response) {
+            friends.value = response.friends.map((user: UserBasics) => ({
+                id: user.id,
+                username: user.username,
+            })
+        )}
     } catch (err) {
         console.error('Friends fetch error:', err);
     }
@@ -75,29 +82,36 @@ const filteredFriends = computed(() => {
     );
 });
 
+const alertMessage = computed(() => {
+    if (friends.value.length === 0) {
+        return "You don't have any friends, use your friends codes to add them";
+    }
+    if (filteredFriends.value.length === 0 && searchFriend.value.trim()) {
+        return `There is no friend with name: "${searchFriend.value.trim()}"`;
+    }
+    return "";
+});
+
+
+const handleFriendAdded = (newFriend: UserBasics) => {
+    friends.value.push(newFriend);
+};
+
 onMounted(() => {
     fetchUser();
-    fetchFriends();
 });
 </script>
 
 
 <style scoped>
-.friends-container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-}
 
 .title {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
 }
 
 .search-input {
-    margin: 30px 50px;
+    margin: auto  auto  20px auto;
 }
 
 .friends-list {
@@ -105,6 +119,16 @@ onMounted(() => {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
 }
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    justify-content: space-between;
+}
+
 
 .friend-card {
     transition: transform 0.3s ease;
@@ -118,15 +142,6 @@ onMounted(() => {
     .friends-container {
         max-width: 100%;
     }
-}
-
-.header-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    font-size: 16px;
-    justify-content: space-between;
 }
 
 .friend-icon {

@@ -168,5 +168,7 @@ header {
 footer {
     padding: 10px;
     text-align: center;
+    margin-top: auto;
+    margin-bottom: 10px;
 }
 </style>

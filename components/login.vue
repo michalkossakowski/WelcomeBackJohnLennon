@@ -1,22 +1,32 @@
 <template>
     <div class="auth-container">
         <h1>{{ isLogin ? 'Login' : 'Register' }}</h1>
-        <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
-            <UFormGroup label="Username" name="username">
-                <UInput v-model="state.username" placeholder="Enter your username" />
-            </UFormGroup>
 
-            <UFormGroup label="Password" name="password">
-                <UInput v-model="state.password" type="password" placeholder="Enter your password" />
-            </UFormGroup>
+        <div v-if="isLoading" class="loaderBox">
+            <h1>Loading ...</h1>
+            <UProgress  class="loader" animation="carousel" />
+        </div>
 
-            <UButton type="submit">{{ isLogin ? 'Log In' : 'Register' }}</UButton>
-        </UForm>
+        <div v-else>
+            <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+                <UFormGroup label="Username" name="username">
+                    <UInput v-model="state.username" placeholder="Enter your username ..." />
+                </UFormGroup>
 
-        <UButton @click="toggleMode" class="mt-4">
-            {{ isLogin ? "Don't have an account? Register" : 'Already have an account? Log In' }}
-        </UButton>
-        <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
+                <UFormGroup label="Password" name="password">
+                    <UInput v-model="state.password" type="password" placeholder="Enter your password ..." />
+                </UFormGroup>
+
+                <UButton type="submit">{{ isLogin ? 'Log In' : 'Register' }}</UButton>
+                <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
+            </UForm>
+
+            <ULink @click="toggleMode" class="mt-4 link">
+                {{ isLogin ? "Don't have an account? Register" : 'Already have an account? Log In' }}
+            </ULink>
+     
+        </div>
+
     </div>
 </template>
 
@@ -24,6 +34,7 @@
 import { object, string, type InferType } from 'yup'
 import type { FormSubmitEvent } from '#ui/types'
 import { useRouter } from 'vue-router'
+const isLoading = ref(false);
 
 const schema = object({
     username: string().required('Username is required'),
@@ -43,6 +54,7 @@ const router = useRouter()
 const errorMessage = ref<string | null>(null);
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+    isLoading.value = true;
     try {
         const url = isLogin.value ? '/api/auth/login' : '/api/auth/register'
         const response = await $fetch(url, {
@@ -54,14 +66,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         })
 
         if (response.statusCode === 200) {
-            if (isLogin.value) {
-                router.push('/').then(() => {
-                    window.location.reload()
-                })
-            } else {
-                router.push('/login')
-            }
+            router.push('/').then(() => {
+                window.location.reload()
+            })
         } else {
+            isLoading.value = false;
             errorMessage.value = response.message
         }
     } catch (error) {
@@ -79,6 +88,11 @@ function toggleMode() {
 </script>
 
 <style scoped>
+
+.loaderBox {
+    margin-top: 20px;
+}
+
 h1 {
     font-size: 32px;
 }
@@ -90,7 +104,14 @@ h1 {
 }
 
 .error {
-    color: red;
+    color: #f87171;
     margin-top: 10px;
+}
+
+.link{
+    color: #96ddb0;
+}
+.link:hover{
+    color: #4ade80;
 }
 </style>
