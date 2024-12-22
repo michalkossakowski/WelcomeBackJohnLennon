@@ -40,7 +40,11 @@ export default defineEventHandler(async (event) => {
             const serverData = await fs.readFile("./db/servers.json", 'utf8');
             const servers = JSON.parse(serverData);
             const server = servers.find((s: { id: string }) => s.id === channel.serverId);
-            sendServerNotifications(body, server.title, channel.title);
+
+            const serverUsersData = await fs.readFile(`./db/serverUsers/users_${server.id}.json`, 'utf8');
+            const serverUsers = JSON.parse(serverUsersData);
+            console.log("Error tutaj eueueueuue " + serverUsers);
+            sendServerNotifications(body, server.title, channel.title, serverUsers);
         }
 
         sendMessageToChannel(body);

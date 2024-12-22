@@ -57,9 +57,9 @@ const sendMessageToChannel = (message: Message) => {
 
 };
 
-const sendServerNotifications = (message: Message, serverName: string, channelName: string) => {
+const sendServerNotifications = (message: Message, serverName: string, channelName: string, serverUsers: string[]) => {
     connectedClients.forEach(({ userId, ws }: { userId: string, ws: WebSocket }) => {
-        if (ws.readyState === 1) {
+        if (ws.readyState === 1 && serverUsers.includes(userId)) {
             ws.send(JSON.stringify({ message, serverName, channelName}));
         }
     });
