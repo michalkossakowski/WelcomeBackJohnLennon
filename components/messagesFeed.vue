@@ -114,7 +114,7 @@ const fetchMessages = async () => {
     error.value = null;
 
     try {
-        const data : Message[] = await $fetch(`/api/messages/${props.channelId}`, { method: 'GET' });
+        const data = await $fetch<Message[]>(`/api/messages/${props?.channelId}`);
         if (data) {
             messages.value = data.map((message: Message) =>
                 new Message(
