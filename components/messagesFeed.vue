@@ -167,7 +167,7 @@ onUnmounted(() => {
 
 .message-content{
     word-wrap: break-word;
-    max-width: 65vw;
+    max-width: 70vw;
 }
 
 .username {
