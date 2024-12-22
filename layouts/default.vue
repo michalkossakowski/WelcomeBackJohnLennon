@@ -8,7 +8,7 @@
             <h1>Loading ...</h1>
             <UProgress  class="loader" animation="carousel" />
         </div>
-        
+
         <main v-else-if="user" class="main-container">
             <div class="sidebar">
                     <UVerticalNavigation :links="links" />
@@ -51,7 +51,7 @@ const fetchUser = async () => {
     } catch (error) {
         user.value = null;
     } finally {
-        isLoading.value = false; 
+        isLoading.value = false;
         if(user.value){
             setupWebSocket();
         }
@@ -79,8 +79,8 @@ const links = computed(() => {
         ],
         [
             { label: 'Home', icon: 'i-heroicons-home', to: '/' },
-            { label: 'My servers', icon: 'i-heroicons-server', to: '/my-servers' },
-            { label: 'Explore', icon: 'i-heroicons-server', to: '/servers' },
+            { label: 'My Servers', icon: 'i-heroicons-server', to: '/my-servers' },
+            { label: 'Explore Servers', icon: 'i-heroicons-server-stack', to: '/servers' },
             { label: 'Friends', icon: 'i-heroicons-user-group', to: '/friends' },
             { label: 'Private Messages', icon: 'i-heroicons-envelope', to: '/chats' },
             { label: 'Help', icon: 'i-heroicons-question-mark-circle', to: '/help' },
@@ -146,7 +146,7 @@ header {
 }
 
 .content {
-    flex-grow: 1; 
+    flex-grow: 1;
     padding: 5px 20px;
     overflow-y: auto;
 }

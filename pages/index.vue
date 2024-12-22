@@ -28,12 +28,21 @@
             </UCard>
         </router-link>
 
+        <router-link to="/my-servers" class="card">
+            <UCard class="card">
+                <template #header>
+                    <UIcon name="i-heroicons-server" class="icon" />
+                </template>
+                My Servers
+            </UCard>
+        </router-link>
+
         <router-link to="/servers" class="card">
             <UCard class="card">
                 <template #header>
                     <UIcon name="i-heroicons-server-stack" class="icon" />
                 </template>
-                Servers
+                Explore Servers
             </UCard>
         </router-link>
 
@@ -69,11 +78,17 @@
     flex-wrap: wrap;
 }
 
+.card {
+    transition: transform 0.3s ease;
+}
 
 .card:hover{
     color: #4ade80;
     border-color: rgb(222, 1, 1);
     cursor: pointer;
+    transform: translateY(-3px);
 }
 
 </style>
+<script setup lang="ts">
+</script>

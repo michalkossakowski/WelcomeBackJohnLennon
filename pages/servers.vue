@@ -2,10 +2,28 @@
     <div class="servers-container">
         <div class="header-row">
             <h1 class="title">Explore servers</h1>
+            <UInput
+                icon="i-heroicons-magnifying-glass-20-solid"
+                size="sm"
+                color="white"
+                :trailing="false"
+                v-model="searchServer"
+                type="text"
+                placeholder="Search by server name ..."
+                class="search-input"
+            />
         </div>
         <div class="servers-list">
+            <UAlert
+                v-if="filteredServers.length === 0"
+                icon="i-heroicons-face-frown"
+                color="primary"
+                variant="solid"
+                title="We are very sorry"
+                :description="alertMessage"
+            />
             <UCard
-                v-for="server in sortedServers"
+                v-for="server in filteredServers"
                 :key="server.id"
                 class="server-card"
             >
@@ -14,8 +32,8 @@
                         <i class="server-icon" />
                         <div class="server-info">
                             <span class="server-title">{{ server.title }}</span>
+                            <span class="server-id">{{ server.id }}</span>
                         </div>
-                        <!-- Use UButton and align it to the right -->
                         <UButton class="join-button" @click="joinServer(server.id)">
                             Join
                         </UButton>
@@ -34,15 +52,33 @@ import { type UserBasics } from '~/models/userModel';
 
 const router = useRouter();
 const { data } = await useFetch<Server[]>('/api/servers/get');
-
+const searchServer = ref<string>('');
 const user = ref<UserBasics | null>(null);
 const isLoading = ref(true);
+
+const filteredServers = computed(() => {
+    if (!data.value) return [];
+    if (!searchServer.value) return sortedServers.value;
+    return sortedServers.value.filter(server =>
+        server.title.toLowerCase().includes(searchServer.value.toLowerCase())
+    );
+});
 
 const sortedServers = computed(() => {
     if (!data.value) return [];
     return [...data.value].sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
+});
+
+const alertMessage = computed(() => {
+    if (!data.value || data.value.length === 0) {
+        return "There are no servers available at the moment";
+    }
+    if (filteredServers.value.length === 0 && searchServer.value.trim()) {
+        return `There is no server with name: "${searchServer.value.trim()}"`;
+    }
+    return "";
 });
 
 const fetchUser = async () => {
@@ -135,6 +171,10 @@ onMounted(fetchUser);
     margin-bottom: 0;
 }
 
+.search-input {
+    width: 300px;
+}
+
 .servers-list {
     display: flex;
     flex-direction: column;
@@ -144,7 +184,10 @@ onMounted(fetchUser);
 .server-card {
     transition: transform 0.3s ease;
     cursor: pointer;
+    min-height: 80px;
+    width: 100%;
 }
+
 
 .server-card:hover {
     transform: translateY(-3px);
@@ -154,6 +197,7 @@ onMounted(fetchUser);
     display: flex;
     align-items: center;
     width: 100%;
+    height: 40px;
 }
 
 .server-icon {
@@ -161,6 +205,7 @@ onMounted(fetchUser);
     height: 24px;
     background-color: #ddd;
     border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .server-info {
@@ -176,8 +221,13 @@ onMounted(fetchUser);
     font-size: 16px;
 }
 
+.server-id {
+    font-size: 11px;
+    opacity: 60%;
+}
+
 .join-button {
-    align-self: flex-end;
+    align-self: center;
+    flex-shrink: 0;
 }
 </style>
-

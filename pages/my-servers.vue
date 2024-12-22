@@ -2,12 +2,24 @@
     <div class="servers-container">
         <div class="header-row">
             <h1 class="title">Servers</h1>
-            <UButton
-                icon="i-heroicons-plus-circle"
-                class="add-button"
-                @click="showAddServer = !showAddServer">
-                Create a server
-            </UButton>
+            <div class="right-section">
+                <UInput
+                    icon="i-heroicons-magnifying-glass-20-solid"
+                    size="sm"
+                    color="white"
+                    :trailing="false"
+                    v-model="searchServer"
+                    type="text"
+                    placeholder="Search by server name ..."
+                    class="search-input"
+                />
+                <UButton
+                    icon="i-heroicons-plus-circle"
+                    class="add-button"
+                    @click="showAddServer = !showAddServer">
+                    Create a server
+                </UButton>
+            </div>
         </div>
         <div class="servers-list">
             <UCard v-if="showAddServer" class="server-card add-server-card">
@@ -44,8 +56,17 @@
                 </template>
             </UCard>
 
+            <UAlert
+                v-if="showAlert"
+                icon="i-heroicons-face-frown"
+                color="primary"
+                variant="solid"
+                title="We are very sorry"
+                :description="alertMessage"
+            />
+
             <UCard
-                v-for="server in sortedServers"
+                v-for="server in filteredServers"
                 :key="server.id"
                 class="server-card"
                 @click="navigateToServer(server.id)"
@@ -72,7 +93,7 @@ import { type UserBasics } from '~/models/userModel';
 const router = useRouter();
 
 const data = ref<{ status: string; message: string; servers: Server[] } | null>(null);
-const refresh = ref<(() => Promise<void>) | null>(null);
+const searchServer = ref('');
 
 const user = ref<UserBasics | null>(null);
 const isLoading = ref(true);
@@ -80,11 +101,33 @@ const isLoading = ref(true);
 const showAddServer = ref(false);
 const newServerName = ref('');
 
+const filteredServers = computed(() => {
+    if (!searchServer.value) return sortedServers.value;
+    return sortedServers.value.filter(server =>
+        server.title.toLowerCase().includes(searchServer.value.toLowerCase())
+    );
+});
+
+const alertMessage = computed(() => {
+    if (!data.value?.servers || data.value.servers.length === 0) {
+        return "You don't have any servers yet. Create one to get started!";
+    }
+    if (filteredServers.value.length === 0 && searchServer.value.trim()) {
+        return `There is no server with name: "${searchServer.value.trim()}"`;
+    }
+    return "";
+});
+
 const sortedServers = computed(() => {
     if (!data.value || !data.value.servers) return [];
     return [...data.value.servers].sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
+});
+
+const showAlert = computed(() => {
+    if (isLoading.value) return false;
+    return filteredServers.value.length === 0;
 });
 
 const fetchUser = async () => {
@@ -171,6 +214,16 @@ onMounted(fetchUser);
     margin-bottom: 20px;
 }
 
+.right-section {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.search-input {
+    width: 300px;
+}
+
 .title {
     font-size: 24px;
     font-weight: bold;
@@ -192,6 +245,8 @@ onMounted(fetchUser);
 .server-card {
     transition: transform 0.3s ease;
     cursor: pointer;
+    min-height: 80px; /* Add fixed height */
+    width: 100%;
 }
 
 .server-card:hover {
@@ -201,9 +256,8 @@ onMounted(fetchUser);
 .header-content {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    font-size: 16px;
+    width: 100%;
+    height: 40px;
 }
 
 .server-icon {
@@ -211,6 +265,7 @@ onMounted(fetchUser);
     height: 24px;
     background-color: #ddd;
     border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .add-server-card {
@@ -258,6 +313,8 @@ onMounted(fetchUser);
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex-grow: 1;
+    margin-left: 10px;
 }
 
 .server-title {
