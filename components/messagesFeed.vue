@@ -167,6 +167,7 @@ onUnmounted(() => {
 
 .message-content{
     word-wrap: break-word;
+    max-width: 65vw;
 }
 
 .username {
@@ -175,14 +176,9 @@ onUnmounted(() => {
     margin-right: 10px;
 }
 
-
-.message-feed-container {
-    display: flex;
-    justify-content: space-between;
-}
 #messages-box {
-    max-height: 70vh;
-    min-height: 70vh;
+    max-height: 75vh;
+    min-height: 75vh;
     overflow-y: auto;
     padding-right: 20px;
 }
