@@ -79,7 +79,8 @@ const links = computed(() => {
         ],
         [
             { label: 'Home', icon: 'i-heroicons-home', to: '/' },
-            { label: 'Servers', icon: 'i-heroicons-server', to: '/servers' },
+            { label: 'My servers', icon: 'i-heroicons-server', to: '/my-servers' },
+            { label: 'Explore', icon: 'i-heroicons-server', to: '/servers' },
             { label: 'Friends', icon: 'i-heroicons-user-group', to: '/friends' },
             { label: 'Private Messages', icon: 'i-heroicons-envelope', to: '/chats' },
             { label: 'Help', icon: 'i-heroicons-question-mark-circle', to: '/help' },

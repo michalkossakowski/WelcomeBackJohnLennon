@@ -12,3 +12,8 @@ export interface UserBasics{
   id: string;
   username: string;
 }
+
+export interface UserServerRequest{
+  userId: string;
+  serverId: string;
+}

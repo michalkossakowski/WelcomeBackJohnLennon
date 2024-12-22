@@ -65,14 +65,15 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { type Server } from '~/models/serverModel';
 import { type UserBasics } from '~/models/userModel';
 
 const router = useRouter();
-const { data, refresh } = await useFetch<Server[]>('/api/servers/get');
 
-// User state
+const data = ref<{ status: string; message: string; servers: Server[] } | null>(null);
+const refresh = ref<(() => Promise<void>) | null>(null);
+
 const user = ref<UserBasics | null>(null);
 const isLoading = ref(true);
 
@@ -80,8 +81,8 @@ const showAddServer = ref(false);
 const newServerName = ref('');
 
 const sortedServers = computed(() => {
-    if (!data.value) return [];
-    return [...data.value].sort((a, b) =>
+    if (!data.value || !data.value.servers) return [];
+    return [...data.value.servers].sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 });
@@ -90,10 +91,13 @@ const fetchUser = async () => {
     try {
         const response = await $fetch('/api/users/get', { method: 'GET' });
         user.value = response.user;
-        if (!user.value) {
-            return;
+
+        if (user.value) {
+            const { data: serverData } = await useFetch<{ status: string; message: string; servers: Server[] }>(`/api/users/${user.value.id}/servers`);
+            data.value = serverData.value;
         }
     } catch (error) {
+        console.error('Error fetching user or servers:', error);
         user.value = null;
     } finally {
         isLoading.value = false;
@@ -111,11 +115,18 @@ const cancelAdd = () => {
 
 const submitNewServer = async () => {
     if (!newServerName.value.trim() || !user.value) return;
+    const serverID = crypto.randomUUID();
 
     const newServer = {
-        id: crypto.randomUUID(),
+        id: serverID,
         title: newServerName.value.trim(),
-        creatorId: user.value.id
+        creatorId: user.value.id,
+        createdAt: new Date().toISOString()
+    };
+
+    const assignUserReq = {
+        userId: user.value.id,
+        serverId: serverID
     };
 
     try {
@@ -124,10 +135,21 @@ const submitNewServer = async () => {
             body: newServer
         });
 
-        await refresh();
+        if (data.value && data.value.servers) {
+            data.value.servers.unshift(newServer);
+        }
         cancelAdd();
     } catch (error) {
         console.error('Error adding server:', error);
+    } finally {
+        await useFetch('/api/servers/assignUser', {
+            method: 'POST',
+            body: assignUserReq
+        });
+        await useFetch('/api/users/assignServer', {
+            method: 'POST',
+            body: assignUserReq
+        });
     }
 };
 
