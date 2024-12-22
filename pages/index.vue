@@ -76,6 +76,7 @@
     text-align: center;
     gap: 50px;
     flex-wrap: wrap;
+    margin-top: 50px;
 }
 
 .card {
