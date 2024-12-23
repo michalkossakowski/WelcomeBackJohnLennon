@@ -77,10 +77,34 @@
                         <div class="server-info">
                             <span class="server-title">{{ server.title }}</span>
                         </div>
+                        <UButton
+                            v-if="isOwner(server)"
+                            icon="i-heroicons-trash"
+                            color="red"
+                            variant="ghost"
+                            class="delete-button"
+                            @click.stop="openDeleteModal(server)"
+                        />
                     </div>
                 </template>
             </UCard>
         </div>
+
+        <ScreenPopUp
+            v-model="showDeleteModal"
+            title="Delete Server"
+            :description="deleteDescription"
+            show-cancel-button
+            cancel-button-text="Cancel"
+            action-button-text="Delete Server"
+            action-button-color="red"
+            :loading="isDeleting"
+            @cancel="showDeleteModal = false"
+            @action="deleteServer"
+        >
+            <p>{{ deleteDescription }}</p>
+            <p class="server-name">Server: {{ serverToDelete?.title }}</p>
+        </ScreenPopUp>
     </div>
 </template>
 
@@ -89,6 +113,7 @@ import { useRouter } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
 import { type Server } from '~/models/serverModel';
 import { type UserBasics } from '~/models/userModel';
+import ScreenPopUp from '~/components/screenPopUp.vue';
 
 const router = useRouter();
 
@@ -97,9 +122,13 @@ const searchServer = ref('');
 
 const user = ref<UserBasics | null>(null);
 const isLoading = ref(true);
+const isDeleting = ref(false);
 
 const showAddServer = ref(false);
+const showDeleteModal = ref(false);
 const newServerName = ref('');
+const serverToDelete = ref<Server | null>(null);
+const deleteDescription = "Are you sure you want to delete this server? Everything associated with it will be deleted forever.";
 
 const filteredServers = computed(() => {
     if (!searchServer.value) return sortedServers.value;
@@ -130,6 +159,10 @@ const showAlert = computed(() => {
     return filteredServers.value.length === 0;
 });
 
+const isOwner = (server: Server) => {
+    return user.value && server.creatorId === user.value.id;
+};
+
 const fetchUser = async () => {
     try {
         const response = await $fetch('/api/users/get', { method: 'GET' });
@@ -149,6 +182,36 @@ const fetchUser = async () => {
 
 const navigateToServer = (serverId: string) => {
     router.push(`/server/${serverId}`);
+};
+
+const openDeleteModal = (server: Server) => {
+    serverToDelete.value = server;
+    showDeleteModal.value = true;
+};
+
+const deleteServer = async () => {
+    if (!serverToDelete.value) return;
+
+    isDeleting.value = true;
+    try {
+        await useFetch(`/api/servers/${serverToDelete.value.id}/delete`, {
+            method: 'DELETE'
+        });
+
+        // Remove the server from the local data
+        if (data.value && data.value.servers) {
+            data.value.servers = data.value.servers.filter(
+                server => server.id !== serverToDelete.value?.id
+            );
+        }
+
+        showDeleteModal.value = false;
+        serverToDelete.value = null;
+    } catch (error) {
+        console.error('Error deleting server:', error);
+    } finally {
+        isDeleting.value = false;
+    }
 };
 
 const cancelAdd = () => {
@@ -200,7 +263,6 @@ onMounted(fetchUser);
 </script>
 
 <style scoped>
-
 .servers-container {
     max-width: 800px;
     margin: 0 auto;
@@ -245,7 +307,7 @@ onMounted(fetchUser);
 .server-card {
     transition: transform 0.3s ease;
     cursor: pointer;
-    min-height: 80px; /* Add fixed height */
+    min-height: 80px;
     width: 100%;
 }
 
@@ -325,5 +387,38 @@ onMounted(fetchUser);
 .server-date {
     font-size: 12px;
     color: #666;
+}
+
+/* New styles for delete functionality */
+.delete-button {
+    width: 32px;
+    height: 32px;
+    margin-left: auto;
+}
+
+.modal-header {
+    padding-bottom: 16px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.modal-content {
+    padding: 16px 0;
+}
+
+.server-name {
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 16px;
 }
 </style>

@@ -12,12 +12,6 @@
     "createdAt": "2024-12-20T23:38:46.032Z"
   },
   {
-    "id": "09c00eee-15cb-40e4-9c29-25fc70733a33",
-    "title": "Buda Cosaka",
-    "creatorId": "current-user-id",
-    "createdAt": "2024-12-20T23:48:01.848Z"
-  },
-  {
     "id": "c125ffa9-f852-48bb-aa40-fb9d373f09ca",
     "title": "Kex's Lands",
     "creatorId": "current-user-id",
@@ -100,5 +94,23 @@
     "title": "addwithsearchtesting",
     "creatorId": "9999999999",
     "createdAt": "2024-12-22T18:15:36.716Z"
+  },
+  {
+    "id": "cfcb984f-2b21-4c33-aa8d-2481ed40531c",
+    "title": "HejkaNaklejka",
+    "creatorId": "i2z1879ffm",
+    "createdAt": "2024-12-23T12:48:33.152Z"
+  },
+  {
+    "id": "90bc671d-7a24-4614-a6c5-fd3fa3411442",
+    "title": "xd",
+    "creatorId": "i2z1879ffm",
+    "createdAt": "2024-12-23T13:01:49.542Z"
+  },
+  {
+    "id": "95b37f8a-b0b4-42c9-b513-4a9db7bf03ca",
+    "title": "123",
+    "creatorId": "9999999999",
+    "createdAt": "2024-12-23T13:48:38.870Z"
   }
 ]
