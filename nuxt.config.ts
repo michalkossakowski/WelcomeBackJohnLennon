@@ -8,10 +8,16 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxt/ui"],
+  modules: [
+    "@nuxt/ui",
+    ["nuxt-file-storage", {
+      serverDir: "./uploads"
+    }]
+  ],
+
   runtimeConfig: {
     public: {
-      wsUrl:  'ws://localhost:3001',
+      wsUrl: 'ws://localhost:3001',
     },
-  },
+  }
 })

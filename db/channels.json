@@ -112,5 +112,23 @@
         "serverId": "c125ffa9-f852-48bb-aa40-fb9d373f09ca",
         "title": "123",
         "creatorId": "9999999999"
+    },
+    {
+        "id": "fc8b2745-06a0-45bb-8558-ec837f483f9f",
+        "serverId": "13b75a51-32da-44d2-a5ee-d1e4b907f963",
+        "title": "1",
+        "creatorId": "9999999999"
+    },
+    {
+        "id": "e5153d86-0ef5-48f9-a2f2-ab71a50b54ed",
+        "serverId": "94d564ca-0b6c-46d7-bd6c-db474f0ec89d",
+        "title": "imagesChannel",
+        "creatorId": "9999999999"
+    },
+    {
+        "id": "e742a4ba-abbd-4543-93bc-ba2663eb317d",
+        "serverId": "c125ffa9-f852-48bb-aa40-fb9d373f09ca",
+        "title": "2",
+        "creatorId": "9999999999"
     }
 ]
