@@ -1,4 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
+import { string } from 'yup';
 import { Message } from '~/models/messageModel';
 
 const wss = new WebSocketServer({ port: 3001 });
@@ -60,7 +61,7 @@ const sendMessageToChannel = (message: Message) => {
 const sendServerNotifications = (message: Message, serverName: string, channelName: string, serverUsers: string[]) => {
     connectedClients.forEach(({ userId, ws }: { userId: string, ws: WebSocket }) => {
         if (ws.readyState === 1 && serverUsers.includes(userId)) {
-            ws.send(JSON.stringify({ message, serverName, channelName}));
+            ws.send(JSON.stringify({ title: `From: /${serverName}/${channelName}`, message: `Message: ${message.content}`}));
         }
     });
 };
@@ -73,7 +74,7 @@ const sendChatNotifications = (message: Message, receiverId: string, channelName
     if (receiverClient) {
         const { ws } = receiverClient;
         try {
-            ws.send(JSON.stringify({ message, serverName: "Private", channelName }));
+            ws.send(JSON.stringify({ title: `From: /${message.author}/${channelName}`, message: `Message: ${message.content}` }));
         } catch (error) {
             console.error(`Error sending message to ${receiverId}:`, error);
         }
@@ -81,5 +82,20 @@ const sendChatNotifications = (message: Message, receiverId: string, channelName
         console.log(`No client with id: ${receiverId} is offline`);
     }
 };
+function sendCallNotification(from: string, to: string ) {
+    const receiverClient = Array.from(connectedClients).find(({ userId, ws }: { userId: string, ws: WebSocket }) => 
+        ws.readyState === WebSocket.OPEN && userId === to
+    );
+    if (receiverClient) {
+        const { ws } = receiverClient;
+        try {
+            ws.send(JSON.stringify({ title: 'incoming call', message: `${to} is calling you` }));
+        } catch (error) {
+            console.error(`Error sending call request to ${to}:`, error);
+        }
+    } else {
+        console.log(`No client with id: ${to} is offline`);
+    }
+}
 
-export { sendMessageToChannel, sendServerNotifications, sendChatNotifications };
+export { sendMessageToChannel, sendServerNotifications, sendChatNotifications, sendCallNotification};

@@ -61,9 +61,9 @@ const fetchUser = async () => {
 const setupWebSocket = () => {
     const socket = new WebSocket(`${config.public.wsUrl}?userId=${user.value?.id}`);
     socket.onmessage = (event) => {
-        const {message,serverName,channelName} = JSON.parse(event.data);
+        const {title,message} = JSON.parse(event.data);
         if(message.authorId !== user.value?.id){
-            toast.add({ title: `From: /${serverName}/${channelName}`,description: `Message: ${message.content}`});
+            toast.add({ title: title, description: message});
         }
     };
 };

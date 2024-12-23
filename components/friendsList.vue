@@ -32,7 +32,7 @@
                             <button @click="openChatWith(friend)">
                                 <UIcon class="icon w-5 h-5" name="i-heroicons-chat-bubble-left-right"/>
                             </button>
-                            <button  @click="console.log(`Video Ja: ${user?.id} Ziomo: ${friend.id}`)">
+                            <button  @click="startCall(friend)">
                                 <UIcon class="icon w-5 h-5" name="i-heroicons-video-camera"/>
                             </button>
                         </div>
@@ -48,6 +48,7 @@
 import { ref, onMounted, computed } from 'vue';
 import type { User, UserBasics } from '~/models/userModel'
 import { useRouter } from 'vue-router';
+import { Message } from '~/models/messageModel';
 
 const router = useRouter();
 const user = ref<User | undefined>(undefined)
@@ -122,6 +123,24 @@ const openChatWith = async (friend: UserBasics) => {
     } catch (error) {
         console.error('Error with creating chat channel:', error);
     }
+};
+const startCall = async (friend: UserBasics) => {
+    console.log(`Video Ja: ${user.value?.id} Ziomo: ${friend.id}`);
+    await $fetch('/api/video/call', {
+        method: 'POST',
+        body: JSON.stringify({
+            callerId: user.value?.id,
+            calleeId: friend.id,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(response => {
+        console.log(response);
+        //router.push(`/video/${response.data.value}`);
+    }).catch(err => {
+        console.error('Error with starting call:', err);
+    });
 };
 
 onMounted(() => {
