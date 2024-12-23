@@ -2,6 +2,19 @@
     <UButton @click="start" v-if="!isStreaming">StartVideo</UButton>
     <video ref="selfVideo" autoplay playsinline controls="false" muted></video>
     <video ref="remoteVideo" autoplay playsinline controls="false" ></video>
+
+    <UCard class="controls">
+        <template #header>
+                <div class="buttons">
+                    <button>
+                        <UIcon class="icon w-5 h-5" name="i-heroicons-microphone"/>
+                    </button>
+                    <button>
+                        <UIcon class="icon w-5 h-5" name="i-heroicons-speaker-wave"/>
+                    </button>
+                </div>
+        </template>
+    </UCard>
 </template>
 <script >
 import { ref, onMounted, onUnmounted } from 'vue';
@@ -135,3 +148,17 @@ export default {
   },
 };
 </script>
+<style scoped>
+.controls {
+  transition: transform 0.3s ease;
+  width: min-content;
+}
+.icon{
+    transition: transform 0.3s ease;
+    margin-left: 10px;
+}
+.icon:hover{
+    color:#4ade80;
+    transform: translateY(-3px);
+}
+</style>
