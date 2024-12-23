@@ -174,6 +174,7 @@ const channelToDelete = ref<string | null>(null);
 
 const user = ref<UserBasics | null>(null);
 const isLoading = ref(true);
+const hasJoinedServer = ref(false);
 
 const showAddChannel = ref(false);
 const newChannelName = ref('');
@@ -257,8 +258,9 @@ const handleJoinServer = async () => {
         });
 
         showJoinModal.value = false;
-        // Refresh the server users list after joining
-        await fetchServerUsers();
+        hasJoinedServer.value = true;
+        // Load server data only after successful join
+        await loadServerData();
     } catch (error) {
         console.error('Error joining server:', error);
     } finally {
@@ -372,11 +374,43 @@ const deleteChannel = async (channelId: string) => {
     }
 };
 
-onMounted(async () => {
+const checkServerMembership = async () => {
+    try {
+        const { data } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/users`);
+        serverUsers.value = data.value?.users || [];
+        return serverUsers.value.some((u) => String(u) === String(user.value?.id));
+    } catch (error) {
+        console.error('Error checking server membership:', error);
+        return false;
+    }
+};
+
+const loadServerData = async () => {
+    try {
+        await Promise.all([
+            fetchServerDetails(),
+            fetchChannels()
+        ]);
+    } catch (error) {
+        console.error('Error loading server data:', error);
+    }
+};
+
+const initializeServer = async () => {
     await fetchUser();
-    await fetchServerDetails();
-    await fetchChannels();
-    await fetchServerUsers();
+    const isMember = await checkServerMembership();
+
+    if (isMember) {
+        hasJoinedServer.value = true;
+        await loadServerData();
+    } else {
+        showJoinModal.value = true;
+    }
+    isLoading.value = false;
+};
+
+onMounted(async () => {
+    await initializeServer();
 });
 </script>
 
@@ -473,5 +507,15 @@ onMounted(async () => {
     margin: 0;
     font-size: 1rem;
     font-weight: bold;
+}
+
+.loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    font-size: 1.2rem;
+    color: #666;
 }
 </style>
