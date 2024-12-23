@@ -184,8 +184,6 @@ onUnmounted(() => {
 #messages-box {
     max-height: 75vh;
     min-height: 75vh;
-    max-height: 75vh;
-    min-height: 75vh;
     overflow-y: auto;
     padding-right: 20px;
 }
