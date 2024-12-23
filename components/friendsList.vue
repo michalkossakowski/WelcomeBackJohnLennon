@@ -1,20 +1,25 @@
 <template>
     <div class="friends-container">
-        <h1 class="title">Friends</h1>
-
+        <div class="header flex justify-between items-center mb-4">
+            <h1 class="title">Friends</h1>
+            <AddFriend :userId="user?.id" @friendAdded="handleFriendAdded" />
+        </div>
         <div class="search-container">
             <UInput icon="i-heroicons-magnifying-glass-20-solid" size="sm" color="white" :trailing="false"
-                v-model="searchFriend" type="text" placeholder="Search by username..." class="search-input" />
+                v-model="searchFriend" type="text" placeholder="Search by username ..." class="search-input" />
         </div>
-
-        <UAlert v-if="filteredFriends.length == 0"
-            icon="i-heroicons-face-frown"
-            color="primary"
-            variant="solid"
-            title="We are very sorry"
-            :description='`There is no friend with name: "${searchFriend}"`'
-        />
-        <div class="friends-list">
+        <div v-if="isLoading" class="loaderBox">
+            <h1>Loading ...</h1>
+            <UProgress  class="loader" animation="carousel" />
+        </div>
+        <div v-else class="friends-list">
+            <UAlert v-if="filteredFriends.length == 0"
+                icon="i-heroicons-face-frown"
+                color="primary"
+                variant="solid"
+                title="We are very sorry"
+                :description='alertMessage'
+            />
             <UCard v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
                 <template #header>
                     <div class="header-content">
@@ -24,7 +29,7 @@
                         </div>
 
                         <div class="buttons">
-                            <button @click="console.log(`Message Ja: ${user?.id} Ziomo: ${friend.id}`)">
+                            <button @click="openChatWith(friend)">
                                 <UIcon class="icon w-5 h-5" name="i-heroicons-chat-bubble-left-right"/>
                             </button>
                             <button  @click="console.log(`Video Ja: ${user?.id} Ziomo: ${friend.id}`)">
@@ -42,10 +47,14 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import type { User, UserBasics } from '~/models/userModel'
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const user = ref<User | undefined>(undefined)
 const friends = ref<UserBasics[]>([]);
 const searchFriend = ref<string>('');
+const isLoading = ref(true);
+const selectedFriend = ref<UserBasics | null>(null);
 
 const fetchUser = async () => {
     try {
@@ -53,18 +62,25 @@ const fetchUser = async () => {
         user.value = response.user
     } catch (error) {
         user.value = undefined
+    }finally{
+        fetchFriends();
     }
 }
 
 const fetchFriends = async () => {
     try {
-        const response = await $fetch(`/api/users/getFriends`, { method: 'GET' });
-        friends.value = response.friends.map((user: UserBasics) => ({
-            id: user.id,
-            username: user.username,
-        }));
+        const response  = await $fetch(`/api/friends/${user.value?.id}`, { method: 'GET' });
+        console.log(response);
+        if ('friends' in response) {
+            friends.value = response.friends.map((user: UserBasics) => ({
+                id: user.id,
+                username: user.username,
+            })
+        )}
     } catch (err) {
         console.error('Friends fetch error:', err);
+    }finally{
+        isLoading.value = false;
     }
 };
 
@@ -75,49 +91,60 @@ const filteredFriends = computed(() => {
     );
 });
 
+const alertMessage = computed(() => {
+    if (friends.value.length === 0) {
+        return "You don't have any friends, use your friends codes to add them";
+    }
+    if (filteredFriends.value.length === 0 && searchFriend.value.trim()) {
+        return `There is no friend with name: "${searchFriend.value.trim()}"`;
+    }
+    return "";
+});
+
+
+const handleFriendAdded = (newFriend: UserBasics) => {
+    friends.value.push(newFriend);
+};
+
+
+const openChatWith = async (friend: UserBasics) => {
+
+    try {
+        await useFetch('/api/chats/get', {
+            method: 'POST',
+            body: {
+                userId: user.value?.id,
+                friendId: friend.id,
+            }
+        }).then(response => {
+            router.push(`/privateMessages/${response.data.value}/${friend.username}`);
+        })
+    } catch (error) {
+        console.error('Error with creating chat channel:', error);
+    }
+};
+
 onMounted(() => {
     fetchUser();
-    fetchFriends();
 });
 </script>
 
 
 <style scoped>
-.friends-container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-}
 
 .title {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
 }
 
 .search-input {
-    margin: 30px 50px;
+    margin: auto  auto  20px auto;
 }
 
 .friends-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
-}
-
-.friend-card {
-    transition: transform 0.3s ease;
-}
-
-.friend-card:hover {
-    transform: translateY(-3px);
-}
-
-@media (min-width: 600px) {
-    .friends-container {
-        max-width: 100%;
-    }
 }
 
 .header-content {
@@ -127,6 +154,22 @@ onMounted(() => {
     font-weight: bold;
     font-size: 16px;
     justify-content: space-between;
+}
+
+
+.friend-card {
+    transition: transform 0.3s ease;
+}
+
+.friend-card:hover {
+    transform: translateY(-3px);
+    color: #96ddb0;
+}
+
+@media (min-width: 600px) {
+    .friends-container {
+        max-width: 100%;
+    }
 }
 
 .friend-icon {

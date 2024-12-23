@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { Message } from '~/models/messageModel';
-import { sendToChannel, sendNotifications } from '../../websocket';
+import { sendMessageToChannel, sendChatNotifications, sendServerNotifications } from '../../websocket';
 
 export default defineEventHandler(async (event) => {
     try {
@@ -26,9 +26,29 @@ export default defineEventHandler(async (event) => {
         messages.push(body);
         await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
 
-        sendToChannel(body.channelId, body);
-        sendNotifications(body);
+        if(body.channelId.startsWith("chat")) {
+            let receiverId = body.channelId;
+            receiverId = receiverId.replace("chat", "");
+            receiverId = receiverId.replace(body.authorId, "");
+            sendChatNotifications(body, receiverId, body.author);
+        }
+        else{
+            const channelData = await fs.readFile("./db/channels.json", 'utf8');
+            const channels = JSON.parse(channelData);
+            const channel = channels.find((ch: { id: string }) => ch.id === body.channelId);
+    
+            const serverData = await fs.readFile("./db/servers.json", 'utf8');
+            const servers = JSON.parse(serverData);
+            const server = servers.find((s: { id: string }) => s.id === channel.serverId);
 
+            const serverUsersData = await fs.readFile(`./db/serverUsers/users_${server.id}.json`, 'utf8');
+            const serverUsers = JSON.parse(serverUsersData);
+
+            sendServerNotifications(body, server.title, channel.title, serverUsers);
+        }
+
+        sendMessageToChannel(body);
+        
         return {
             status: 'success',
             message: 'Message added',

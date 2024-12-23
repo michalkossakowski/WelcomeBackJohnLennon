@@ -8,7 +8,7 @@
             <h1>Loading ...</h1>
             <UProgress  class="loader" animation="carousel" />
         </div>
-        
+
         <main v-else-if="user" class="main-container">
             <div class="sidebar">
                     <UVerticalNavigation :links="links" />
@@ -24,7 +24,7 @@
         </div>
 
         <footer>
-            @2024 Made by Weryk Kosak and Krzyś special thanks to Billie Eilish
+            @2024 Made by Weryk and Kosak special thanks to Billie Eilish
         </footer>
 
         <UNotifications />
@@ -33,14 +33,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue';
-import { useRouter } from 'vue-router';
 import avatarImage from './public/assets/avatar.jpg';
 import type { User } from '~/models/userModel';
 
-const router = useRouter();
 const user = ref<User | null>(null);
 const toast = useToast()
 const isLoading = ref(true);
+const config = useRuntimeConfig();
 
 const fetchUser = async () => {
     try {
@@ -52,16 +51,20 @@ const fetchUser = async () => {
     } catch (error) {
         user.value = null;
     } finally {
-        isLoading.value = false; // Set isLoading to false once the request completes
+        isLoading.value = false;
+        if(user.value){
+            setupWebSocket();
+        }
     }
 };
 
 const setupWebSocket = () => {
-    const socket = new WebSocket('ws://localhost:3001');
-    //const socket = new WebSocket('https://<adrestunelu>/');
+    const socket = new WebSocket(`${config.public.wsUrl}?userId=${user.value?.id}`);
     socket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        toast.add({ title: `New Message: ${message.content}`,description: `Channel: ${message.channelId}`});
+        const {message,serverName,channelName} = JSON.parse(event.data);
+        if(message.authorId !== user.value?.id){
+            toast.add({ title: `From: /${serverName}/${channelName}`,description: `Message: ${message.content}`});
+        }
     };
 };
 
@@ -76,11 +79,12 @@ const links = computed(() => {
         ],
         [
             { label: 'Home', icon: 'i-heroicons-home', to: '/' },
-            { label: 'Servers', icon: 'i-heroicons-server', to: '/servers' },
-            { label: 'Messages', icon: 'i-heroicons-envelope', to: '/messages' },
-            { label: 'Messages2', icon: 'i-heroicons-envelope', to: '/messages2' },
-            { label: 'Video', icon: 'i-heroicons-video-camera', to: '/video' },
+            { label: 'My Servers', icon: 'i-heroicons-server', to: '/my-servers' },
+            { label: 'Explore Servers', icon: 'i-heroicons-server-stack', to: '/servers' },
             { label: 'Friends', icon: 'i-heroicons-user-group', to: '/friends' },
+            { label: 'Private Messages', icon: 'i-heroicons-envelope', to: '/chats' },
+            { label: 'Help', icon: 'i-heroicons-question-mark-circle', to: '/help' },
+            { label: 'Video', icon: 'i-heroicons-video-camera', to: '/video' },
         ],
     ];
 });
@@ -105,7 +109,6 @@ const logout = async () => {
 
 onMounted(() => {
     fetchUser();
-    setupWebSocket();
 });
 </script>
 
@@ -143,7 +146,7 @@ header {
 }
 
 .content {
-    flex-grow: 1; 
+    flex-grow: 1;
     padding: 5px 20px;
     overflow-y: auto;
 }
@@ -168,5 +171,7 @@ header {
 footer {
     padding: 10px;
     text-align: center;
+    margin-top: auto;
+    margin-bottom: 10px;
 }
 </style>
