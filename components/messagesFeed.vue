@@ -10,15 +10,15 @@
         <div v-else >
             <div class="search-container">
                 <UInput icon="i-heroicons-magnifying-glass-20-solid" size="sm" color="white" :trailing="false"
-                v-model="searchMessage" type="text" placeholder="Search for message ..." class="search-input" />
+                        v-model="searchMessage" type="text" placeholder="Search for message ..." class="search-input" />
             </div>
             <div id="messages-box">
                 <UAlert v-if="filteredMessages.length == 0"
-                icon="i-heroicons-face-frown"
-                color="primary"
-                variant="solid"
-                title="No messages found"
-                :description='alertMessage'
+                        icon="i-heroicons-face-frown"
+                        color="primary"
+                        variant="solid"
+                        title="No messages found"
+                        :description='alertMessage'
                 />
                 <div v-for="message in filteredMessages" :key="message.id" class="card">
                     <UCard>
@@ -26,12 +26,16 @@
                             <b class="username">{{ message.author }}</b>
                             <span class="time">
                                 {{ new Date(message.publishDate).toLocaleDateString() }}
-                                
                                 {{ new Date(message.publishDate).toLocaleTimeString() }}
                             </span>
                         </template>
-                        <div class="message-content">    
-                            {{ message.content }}
+                        <div class="message-content">
+                            <p>{{ message.content }}</p>
+                            <img v-if="message.filePath"
+                                 :src="message.filePath"
+                                 :alt="'Image shared by ' + message.author"
+                                 class="mt-2 max-w-sm rounded-lg shadow-md"
+                            />
                         </div>
                     </UCard>
                 </div>
@@ -123,7 +127,8 @@ const fetchMessages = async () => {
                     message.publishDate,
                     message.author,
                     message.authorId,
-                    message.content
+                    message.content,
+                    message.filePath
                 )
             );
         }
