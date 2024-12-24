@@ -35,7 +35,8 @@
                                  :src="message.filePath"
                                  :alt="'Image shared by ' + message.author"
                                  class="mt-2 max-w-sm rounded-lg shadow-md"
-                            />
+                                 @load="scrollToNewest"
+                                 />
                         </div>
                     </UCard>
                 </div>
