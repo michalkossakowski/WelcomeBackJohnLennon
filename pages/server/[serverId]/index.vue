@@ -239,28 +239,17 @@ const fetchUser = async () => {
 };
 
 const handleLeaveServer = async () => {
-    if (!currentUser.value) return;
-    const userId = currentUser.value.id;
+    const userId = currentUser.value?.id;
+
+    isDeletingUser.value = true;
     try {
-        await useFetch('/api/servers/kickUser', {
-            method: 'POST',
-            body: {
-                userId: userId,
-                serverId: serverId
-            }
+        await useFetch(`/api/servers/${serverId}/${userId}`, {
+            method: 'DELETE'
         });
-
-        await useFetch('/api/users/leaveServer', {
-            method: 'POST',
-            body: {
-                userId: userId,
-                serverId: serverId
-            }
-        });
-
-        router.push('/my-servers');
     } catch (error) {
-        console.error('Error leaving server:', error);
+        console.error('Error removing user:', error);
+    } finally {
+        router.push('/my-servers');
     }
 };
 
