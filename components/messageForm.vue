@@ -1,10 +1,23 @@
 <template>
     <div class="message-form">
         <form @submit.prevent="submitForm">
-            <div class="form-group">
-                <UTextarea id="content" v-model="message.content" placeholder="Enter your message content" required
-                           @keydown.enter.prevent="submitForm" />
-                <FileUpload ref="fileUploadRef" @file-selected="handleFileSelected" />
+            <div class="flex items-center gap-2">
+                <UTextarea
+                    id="content"
+                    v-model="message.content"
+                    placeholder="Enter your message content"
+                    required
+                    class="flex-1"
+                    @keydown.enter.prevent="submitForm"
+                />
+                <FileUpload
+                    ref="fileUploadRef"
+                    @file-selected="handleFileSelected"
+                    class="flex-shrink-0"
+                />
+            </div>
+            <div v-if="filePath" class="mt-2 text-sm text-gray-600">
+                File selected: {{ filePath }}
             </div>
         </form>
     </div>

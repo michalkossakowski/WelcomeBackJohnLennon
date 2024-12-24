@@ -97,6 +97,48 @@
             />
         </div>
 
+        <div class="sidebar">
+            <div class="channels">
+                <div class="server-header">
+                    <h3> Users </h3>
+                </div>
+
+                <ul>
+                    <li
+                        v-for="user in serverUsers"
+                        :key="user.id"
+                        class="channel-item flex justify-between items-center"
+                    >
+                    <span class="channel-title cursor-pointer">
+                        {{ user.username }}
+                    </span>
+                        <UButton
+                            v-if="isOwner && user.id !== currentUser?.id"
+                            icon="i-heroicons-trash"
+                            color="red"
+                            variant="ghost"
+                            class="action-button delete-button"
+                            @click.stop="openUserDeleteModal(user.id)"
+                        />
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+        <ScreenPopUp
+            v-model="showUserDeleteModal"
+            title="Remove User"
+            description="Are you sure you want to remove this user from the server?"
+            show-cancel-button
+            cancel-button-text="Cancel"
+            action-button-text="Remove User"
+            action-button-color="red"
+            :loading="isDeletingUser"
+            @cancel="showUserDeleteModal = false"
+            @action="handleUserDelete"
+        />
+
         <ScreenPopUp
             v-model="showDeleteModal"
             title="Delete Server"
@@ -143,7 +185,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { type Channel } from '~/models/channelModel'
 import { type Server } from '~/models/serverModel'
-import { type UserBasics } from '~/models/userModel';
+import { type UserBasics} from '~/models/userModel';
 import MessagesFeed from '~/components/messagesFeed.vue';
 import ScreenPopUp from '~/components/screenPopUp.vue';
 
@@ -168,11 +210,13 @@ const showChannelDeleteModal = ref(false);
 const isDeleting = ref(false);
 const isJoining = ref(false);
 const isDeletingChannel = ref(false);
-
 const channelToDelete = ref<string | null>(null);
 
+const showUserDeleteModal = ref(false);
+const isDeletingUser = ref(false);
+const userToDelete = ref<string | null>(null);
 
-const user = ref<UserBasics | null>(null);
+const currentUser = ref<UserBasics | null>(null);
 const isLoading = ref(true);
 const hasJoinedServer = ref(false);
 
@@ -180,23 +224,23 @@ const showAddChannel = ref(false);
 const newChannelName = ref('');
 
 const isOwner = computed(() => {
-    return user.value?.id === serverOwnerId.value;
+    return currentUser.value?.id === serverOwnerId.value;
 });
 
 const fetchUser = async () => {
     try {
         const response = await $fetch('/api/users/get', { method: 'GET' });
-        user.value = response.user;
+        currentUser.value = response.user;
     } catch (error) {
-        user.value = null;
+        currentUser.value = null;
     } finally {
         isLoading.value = false;
     }
 };
 
 const handleLeaveServer = async () => {
-    if (!user.value) return;
-    const userId = user.value.id;
+    if (!currentUser.value) return;
+    const userId = currentUser.value.id;
     try {
         await useFetch('/api/servers/kickUser', {
             method: 'POST',
@@ -238,12 +282,12 @@ const handleDeleteServer = async () => {
 };
 
 const handleJoinServer = async () => {
-    if (!user.value) return;
+    if (!currentUser.value) return;
 
     isJoining.value = true;
     try {
         const assignUserReq = {
-            userId: user.value.id,
+            userId: currentUser.value.id,
             serverId: serverId
         };
 
@@ -271,19 +315,6 @@ const handleJoinServer = async () => {
 const handleJoinCancel = () => {
     showJoinModal.value = false;
     router.push('/my-servers');
-};
-
-const fetchServerUsers = async () => {
-    try {
-        const { data } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/users`);
-        serverUsers.value = data.value?.users || [];
-    } catch (error) {
-        console.error('Error fetching server users:', error);
-    } finally {
-        if (!serverUsers.value.some((u) => String(u) === String(user.value?.id))) {
-            showJoinModal.value = true;
-        }
-    }
 };
 
 const fetchServerDetails = async () => {
@@ -335,13 +366,13 @@ const cancelAdd = () => {
 };
 
 const submitNewChannel = async () => {
-    if (!newChannelName.value.trim() || !user.value) return;
+    if (!newChannelName.value.trim() || !currentUser.value) return;
 
     const newChannel = {
         id: crypto.randomUUID(),
         serverId: serverId,
         title: newChannelName.value.trim(),
-        creatorId: user.value.id
+        creatorId: currentUser.value.id
     };
 
     try {
@@ -376,9 +407,9 @@ const deleteChannel = async (channelId: string) => {
 
 const checkServerMembership = async () => {
     try {
-        const { data } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/users`);
+        const { data } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/usersBasic`);
         serverUsers.value = data.value?.users || [];
-        return serverUsers.value.some((u) => String(u) === String(user.value?.id));
+        return serverUsers.value.some((u) => String(u.id) === String(currentUser.value?.id));
     } catch (error) {
         console.error('Error checking server membership:', error);
         return false;
@@ -407,6 +438,29 @@ const initializeServer = async () => {
         showJoinModal.value = true;
     }
     isLoading.value = false;
+};
+
+const openUserDeleteModal = (userId: string) => {
+    userToDelete.value = userId;
+    showUserDeleteModal.value = true;
+};
+
+const handleUserDelete = async () => {
+    if (!userToDelete.value) return;
+
+    isDeletingUser.value = true;
+    try {
+        await useFetch(`/api/servers/${serverId}/${userToDelete.value}`, {
+            method: 'DELETE'
+        });
+        serverUsers.value = serverUsers.value.filter(user => user.id !== userToDelete.value);
+    } catch (error) {
+        console.error('Error removing user:', error);
+    } finally {
+        isDeletingUser.value = false;
+        showUserDeleteModal.value = false;
+        userToDelete.value = null;
+    }
 };
 
 onMounted(async () => {
@@ -470,6 +524,7 @@ onMounted(async () => {
 .content-area {
     width: 100%;
     margin-left: 20px;
+    margin-right: 20px;
 }
 
 .no-channel-message {

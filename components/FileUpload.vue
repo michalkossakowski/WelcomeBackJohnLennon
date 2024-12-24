@@ -1,7 +1,6 @@
 <template>
     <div class="file-upload">
         <UButton icon="i-heroicons-photo" size="sm" @click="openFileInput">
-            Add Image
         </UButton>
         <input
             type="file"
