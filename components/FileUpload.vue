@@ -1,7 +1,6 @@
 <template>
     <div class="file-upload">
-        <UButton icon="i-heroicons-photo" size="sm" @click="openFileInput">
-        </UButton>
+        <UButton icon="i-heroicons-photo" size="sm" @click="openFileInput" />
         <input
             type="file"
             ref="fileInput"
@@ -9,18 +8,6 @@
             accept="image/*"
             @change="handleFileChange"
         />
-        <div v-if="selectedFile" class="mt-2">
-            <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-600">{{ selectedFile.name }}</span>
-                <UButton
-                    icon="i-heroicons-x-mark"
-                    color="red"
-                    variant="ghost"
-                    size="xs"
-                    @click="clearFile"
-                />
-            </div>
-        </div>
     </div>
 </template>
 
@@ -64,5 +51,5 @@ const clearFile = () => {
     emit('file-cleared');
 };
 
-defineExpose({ uploadFile });
+defineExpose({ uploadFile, clearFile });
 </script>

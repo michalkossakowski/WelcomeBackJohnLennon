@@ -136,8 +136,8 @@ header {
     text-align: center;
 }
 .sidebar {
-    max-width: 200px;
-    min-width: 200px;
+    max-width: 170px;
+    min-width: 170px;
     padding: 5px;
     height: 0;
     position: sticky;

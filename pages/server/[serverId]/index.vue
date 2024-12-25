@@ -38,7 +38,7 @@
                     <div class="flex items-center bg-gray-800 p-2 rounded">
                         <UInput
                             v-model="newChannelName"
-                            placeholder="Channel name"
+                            placeholder="Name"
                             class="flex-grow"
                             @keyup.enter="submitNewChannel"
                         />
@@ -86,8 +86,8 @@
         </div>
 
         <div class="content-area">
-            <div v-if="!currentChannelId">
-                <p class="no-channel-message">Select a channel to get started</p>
+            <div v-if="!currentChannelId" class="no-channel-container">
+                <p class="no-channel-message">Select a channel to get started!</p>
             </div>
 
             <MessagesFeed
@@ -464,7 +464,8 @@ onMounted(async () => {
 }
 
 .sidebar {
-    width: 250px;
+    max-width: 170px;
+    min-width: 170px;
     padding-top: 0;
     padding-bottom: 0.375rem;
     background: #111827;
@@ -553,13 +554,21 @@ onMounted(async () => {
     font-weight: bold;
 }
 
-.loading-state {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-    font-size: 1.2rem;
-    color: #666;
+.content-area {
+    position: relative;
 }
+
+.no-channel-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.no-channel-message {
+    font-size: 1.2rem;
+    color: #555;
+}
+
 </style>
