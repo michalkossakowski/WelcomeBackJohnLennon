@@ -32,7 +32,8 @@ export default defineEventHandler(async (event) => {
             receiverId = receiverId.replace(body.authorId, "");
             sendChatNotifications(body, receiverId, body.author);
         }
-        else{
+        else {
+
             const channelData = await fs.readFile("./db/channels.json", 'utf8');
             const channels = JSON.parse(channelData);
             const channel = channels.find((ch: { id: string }) => ch.id === body.channelId);
@@ -44,6 +45,13 @@ export default defineEventHandler(async (event) => {
             const serverUsersData = await fs.readFile(`./db/serverUsers/users_${server.id}.json`, 'utf8');
             const serverUsers = JSON.parse(serverUsersData);
 
+            if (!serverUsers.includes(body.authorId)) {
+                throw createError({
+                    statusCode: 403,
+                    statusMessage: 'You are not a member of this server.',
+                });
+            }
+
             sendServerNotifications(body, server.title, channel.title, serverUsers);
         }
 
@@ -54,10 +62,15 @@ export default defineEventHandler(async (event) => {
             message: 'Message added',
         };
     }
-    catch (error) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: `Message add error: ${error}`,
-        });
+    catch (error: unknown) {
+        if (error && typeof error === 'object' && 'statusCode' in error) {
+            throw error;
+        }
+        else {
+            throw createError({
+                statusCode: 500,
+                statusMessage: `Message add error: ${error}`,
+            });
+        }
     }
 });

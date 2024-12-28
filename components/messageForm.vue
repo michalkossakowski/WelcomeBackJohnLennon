@@ -56,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
 import { Message } from '~/models/messageModel';
 import FileUpload from './FileUpload.vue';
@@ -84,6 +85,8 @@ const props = defineProps({
     },
 });
 
+const router = useRouter();
+const toast = useToast()
 const message = ref<Message>(new Message('', '', new Date(), '', '', ''));
 const errorMessage = ref<string | null>(null);
 const fileTypeError = ref<string | null>(null);
@@ -101,8 +104,8 @@ const resetError = () => {
     isError.value = false;
 };
 
-const handleChannelError = () => {
-    errorMessage.value = "This channel is unavailable. Please try refreshing the page.";
+const handleChannelError = (errorMsg: string) => {
+    errorMessage.value = errorMsg;
     isError.value = true;
     emit('channelError');
 };
@@ -176,8 +179,12 @@ const submitForm = async () => {
 
         const err = error as ApiError;
 
-        if (err.status === 500) {
-            handleChannelError();
+        if (err.status === 403) {
+            toast.add({ title: `You have been kicked from the server.`});
+            router.push('/')
+        }
+        else if (err.status === 500) {
+            handleChannelError("This channel is unavailable. Please try refreshing the page.");
         } else {
             errorMessage.value = "Failed to send message. Please try again.";
         }
