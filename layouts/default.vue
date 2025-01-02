@@ -29,17 +29,36 @@
 
         <UNotifications />
     </div>
+    <ScreenPopUp
+            v-model="showCallModal"
+            prevent-close
+            title="Calling"
+            :description="callModalDescription"
+            show-cancel-button
+            cancel-button-text="Decline"
+            action-button-text="Answer"
+            action-button-color="green"
+            @cancel="DeclineCall(callModalDescription)"
+            @action="AnswerCall(callModalDescription)"
+        >
+            <p>{{ callModalDescription }}</p>
+    </ScreenPopUp>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue';
+import { useRouter } from 'vue-router';
 import avatarImage from './public/assets/avatar.jpg';
-import type { User } from '~/models/userModel';
+import type { User, UserBasics } from '~/models/userModel';
 
+const router = useRouter();
 const user = ref<User | null>(null);
 const toast = useToast()
 const isLoading = ref(true);
 const config = useRuntimeConfig();
+
+const showCallModal = ref(false); 
+const callModalDescription = ref(''); 
 
 const fetchUser = async () => {
     try {
@@ -62,10 +81,70 @@ const setupWebSocket = () => {
     const socket = new WebSocket(`${config.public.wsUrl}?userId=${user.value?.id}`);
     socket.onmessage = (event) => {
         const {title,message} = JSON.parse(event.data);
-        if(message.authorId !== user.value?.id){
+        if(title === 'Incoming call'){
+            callModalDescription.value = message;
+            showCallModal.value = true;
+        }else if(title === 'Call response'){
+            toast.add({ title: title, description: message});
+            console.log(message)
+            if(message === 'declined')
+            {
+                console.log('Call declined');
+                router.push('/');
+            }
+        }else if(message.authorId !== user.value?.id){
             toast.add({ title: title, description: message});
         }
+        
     };
+};
+
+const AnswerCall = async (friendID: string) => {
+    console.log(`Video Ja: ${user.value?.id} Ziomo: ${friendID}`);
+    await $fetch('/api/video/response', {
+        method: 'POST',
+        body: JSON.stringify({
+            from: user.value?.id,
+            to: friendID,
+            response: 'accept'
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(response => {
+        console.log(response);
+        if (response.status === 'error') {
+            console.error('Error with starting call:', response.message);
+            return;
+        }
+        showCallModal.value = false;
+        router.push(`/videoChat/${friendID}/${user.value?.id}`);
+    }).catch(err => {
+        console.error('Error with starting call:', err);
+    });
+};
+const DeclineCall = async (friendID: string) => {
+    console.log(`Video Ja: ${user.value?.id} Ziomo: ${friendID}`);
+    await $fetch('/api/video/response', {
+        method: 'POST',
+        body: JSON.stringify({
+            from: user.value?.id,
+            to: friendID,
+            response: 'declined'
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(response => {
+        console.log(response);
+        if (response.status === 'error') {
+            console.error('Error with starting call:', response.message);
+            return;
+        }
+        showCallModal.value = false;
+    }).catch(err => {
+        console.error('Error with starting call:', err);
+    });
 };
 
 const links = computed(() => {

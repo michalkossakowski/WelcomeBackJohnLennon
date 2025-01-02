@@ -137,6 +137,11 @@ const startCall = async (friend: UserBasics) => {
         },
     }).then(response => {
         console.log(response);
+        if (response.status === 'error') {
+            console.error('Error with starting call:', response.message);
+            return;
+        }
+        router.push(`/videoChat/${user.value?.id}/${friend.id}`);
         //router.push(`/video/${response.data.value}`);
     }).catch(err => {
         console.error('Error with starting call:', err);

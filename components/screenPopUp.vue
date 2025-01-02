@@ -1,5 +1,5 @@
 <template>
-    <UModal v-model="isOpen">
+    <UModal v-model="isOpen" >
         <UCard>
             <template #header>
                 <div class="modal-header">
