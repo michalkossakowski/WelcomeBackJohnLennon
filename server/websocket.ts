@@ -1,4 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
+import { string } from 'yup';
 import { Message } from '~/models/messageModel';
 
 const wss = new WebSocketServer({ port: 3001 });
@@ -6,17 +7,48 @@ const wss = new WebSocketServer({ port: 3001 });
 const clientsByChannel = new Map<string, Set<WebSocket>>();
 const connectedClients = new Set<{ userId: string, ws: WebSocket }>();
 
+const callClients= new Set<{ userId: string, ws: WebSocket }>();
+const videoCalls= new Map<string,Set<WebSocket> >();
+
+
 wss.on('connection', (ws, req) => {
     const url = new URL(req.url || '', `http://${req.headers.host}`);
     const userId = url.searchParams.get('userId');
     const channelId = url.searchParams.get('channelId');
+    const CallerId = url.searchParams.get('CallerId');
+    const CalleeID = url.searchParams.get('CalleeID');
 
+    
     if (channelId) {
         handleChannelConnection(ws, userId!, channelId);
-    } else {
+    }else if(CallerId && CalleeID){
+        handleCallConnection(ws, CallerId!, CalleeID!);
+    }else{
         handleNotificationConnection(ws, userId!);
     }
 });
+
+function handleCallConnection(ws: WebSocket, CallerId: string, CalleeID: string){
+    if (!videoCalls.has(CallerId+':'+CalleeID)) {
+        videoCalls.set(CallerId+':'+CalleeID, new Set());
+    }
+    const callClients = videoCalls.get(CallerId+':'+CalleeID)!;
+    callClients.add(ws);
+    console.log(`User: ${CallerId} connected to call clients`);
+
+    ws.on('message', (message: string) => {
+        const parsedMessage = JSON.parse(message);
+        // Broadcast the message to all other clients
+        callClients.forEach((client) => {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(parsedMessage));
+            }
+        });
+    });
+    ws.on('close', () => {
+        videoCalls.delete(CallerId+':'+CalleeID);
+    });
+}
 
 function handleChannelConnection(ws: WebSocket, userId: string, channelId: string) {
     if (!clientsByChannel.has(channelId)) {
@@ -60,7 +92,7 @@ const sendMessageToChannel = (message: Message) => {
 const sendServerNotifications = (message: Message, serverName: string, channelName: string, serverUsers: string[]) => {
     connectedClients.forEach(({ userId, ws }: { userId: string, ws: WebSocket }) => {
         if (ws.readyState === 1 && serverUsers.includes(userId)) {
-            ws.send(JSON.stringify({ message, serverName, channelName}));
+            ws.send(JSON.stringify({ title: `From: /${serverName}/${channelName}`, message: `Message: ${message.content}`}));
         }
     });
 };
@@ -73,7 +105,7 @@ const sendChatNotifications = (message: Message, receiverId: string, channelName
     if (receiverClient) {
         const { ws } = receiverClient;
         try {
-            ws.send(JSON.stringify({ message, serverName: "Private", channelName }));
+            ws.send(JSON.stringify({ title: `From: /${message.author}/${channelName}`, message: `Message: ${message.content}` }));
         } catch (error) {
             console.error(`Error sending message to ${receiverId}:`, error);
         }
@@ -81,5 +113,44 @@ const sendChatNotifications = (message: Message, receiverId: string, channelName
         console.log(`No client with id: ${receiverId} is offline`);
     }
 };
+function sendCallNotification(from: string, to: string ) {
+    const receiverClient = Array.from(connectedClients).find(({ userId, ws }: { userId: string, ws: WebSocket }) => 
+        ws.readyState === WebSocket.OPEN && userId === to
+    );
+    if (receiverClient) {
+        const { ws } = receiverClient;
+        try {
+            ws.send(JSON.stringify({ title: 'Incoming call', message: from }));
+        } catch (error) {
+            console.error(`Error sending call request to ${to}:`, error);
+        }finally{
+            return { status: 'success', message: 'Call request sent' };
+        }
+    } else {
+        console.log(`No client with id: ${to} is offline`);
+        return { status: 'error', message: 'User is offline' };
+    }
+}
 
-export { sendMessageToChannel, sendServerNotifications, sendChatNotifications };
+function sendCallResponse(from: string, to: string, response: string) {
+    const receiverClient = Array.from(connectedClients).find(({ userId, ws }: { userId: string, ws: WebSocket }) => 
+        ws.readyState === WebSocket.OPEN && userId === to
+    );
+    if (receiverClient) {
+        const { ws } = receiverClient;
+        try {
+            ws.send(JSON.stringify({ title: 'Call response', message: response }));
+        } catch (error) {
+            console.error(`Error sending call response to ${to}:`, error);
+        }finally{
+            return { status: 'success', message: 'Call request answered' };
+        }
+    } else {
+        console.log(`No client with id: ${to} is offline`);
+        return { status: 'error', message: 'User is offline' };
+    }
+}
+
+
+
+export { sendMessageToChannel, sendServerNotifications, sendChatNotifications, sendCallNotification, sendCallResponse};
