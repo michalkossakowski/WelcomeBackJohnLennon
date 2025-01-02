@@ -26,6 +26,7 @@
                 <div class="channel-header flex items-center justify-between mb-2">
                     <h4 class="section-title">Channels</h4>
                     <UButton
+                        v-if="isOwner"
                         icon="i-heroicons-plus-circle"
                         class="add-button"
                         @click="showAddChannel = !showAddChannel"
@@ -37,7 +38,7 @@
                     <div class="flex items-center bg-gray-800 p-2 rounded">
                         <UInput
                             v-model="newChannelName"
-                            placeholder="Channel name"
+                            placeholder="Name"
                             class="flex-grow"
                             @keyup.enter="submitNewChannel"
                         />
@@ -76,7 +77,7 @@
                             color="red"
                             variant="ghost"
                             class="action-button delete-button"
-                            @click="deleteChannel(channel.id)"
+                            @click.stop="openChannelDeleteModal(channel.id)"
                         />
                     </li>
                 </ul>
@@ -85,8 +86,8 @@
         </div>
 
         <div class="content-area">
-            <div v-if="!currentChannelId">
-                <p class="no-channel-message">Select a channel to get started</p>
+            <div v-if="!currentChannelId" class="no-channel-container">
+                <p class="no-channel-message">Select a channel to get started!</p>
             </div>
 
             <MessagesFeed
@@ -95,6 +96,48 @@
                 :channelId="currentChannelId"
             />
         </div>
+
+        <div class="sidebar">
+            <div class="channels">
+                <div class="server-header">
+                    <h3> Users </h3>
+                </div>
+
+                <ul>
+                    <li
+                        v-for="user in serverUsers"
+                        :key="user.id"
+                        class="channel-item flex justify-between items-center"
+                    >
+                    <span class="channel-title cursor-pointer">
+                        {{ user.username }}
+                    </span>
+                        <UButton
+                            v-if="isOwner && user.id !== currentUser?.id"
+                            icon="i-heroicons-trash"
+                            color="red"
+                            variant="ghost"
+                            class="action-button delete-button"
+                            @click.stop="openUserDeleteModal(user.id)"
+                        />
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+        <ScreenPopUp
+            v-model="showUserDeleteModal"
+            title="Remove User"
+            description="Are you sure you want to remove this user from the server?"
+            show-cancel-button
+            cancel-button-text="Cancel"
+            action-button-text="Remove User"
+            action-button-color="red"
+            :loading="isDeletingUser"
+            @cancel="showUserDeleteModal = false"
+            @action="handleUserDelete"
+        />
 
         <ScreenPopUp
             v-model="showDeleteModal"
@@ -111,15 +154,28 @@
 
         <ScreenPopUp
             v-model="showJoinModal"
-            title="Do you want to join this server?"
-            description="Are you sure you want to delete this server? All channels and messages will be permanently deleted."
+            title="Join Server"
+            description="Would you like to join this server?"
             show-cancel-button
             cancel-button-text="Cancel"
-            action-button-text="Delete Server"
+            action-button-text="Join Server"
+            action-button-color="green"
+            :loading="isJoining"
+            @cancel="handleJoinCancel"
+            @action="handleJoinServer"
+        />
+
+        <ScreenPopUp
+            v-model="showChannelDeleteModal"
+            title="Delete Channel"
+            description="Are you sure you want to delete this channel? All messages will be permanently deleted."
+            show-cancel-button
+            cancel-button-text="Cancel"
+            action-button-text="Delete Channel"
             action-button-color="red"
-            :loading="isDeleting"
-            @cancel="showDeleteModal = false"
-            @action="handleDeleteServer"
+            :loading="isDeletingChannel"
+            @cancel="showChannelDeleteModal = false"
+            @action="handleChannelDelete"
         />
     </div>
 </template>
@@ -129,7 +185,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { type Channel } from '~/models/channelModel'
 import { type Server } from '~/models/serverModel'
-import { type UserBasics } from '~/models/userModel';
+import { type UserBasics} from '~/models/userModel';
 import MessagesFeed from '~/components/messagesFeed.vue';
 import ScreenPopUp from '~/components/screenPopUp.vue';
 
@@ -146,54 +202,54 @@ const serverName = ref('Loading...');
 const currentChannelId = ref<string | null>(null);
 const serverUsers = ref<UserBasics[]>([]);
 const serverOwnerId = ref<string | null>(null);
+
 const showDeleteModal = ref(false);
 const showJoinModal = ref(false);
-const isDeleting = ref(false);
+const showChannelDeleteModal = ref(false);
 
-const user = ref<UserBasics | null>(null);
+const isDeleting = ref(false);
+const isJoining = ref(false);
+const isDeletingChannel = ref(false);
+const channelToDelete = ref<string | null>(null);
+
+const showUserDeleteModal = ref(false);
+const isDeletingUser = ref(false);
+const userToDelete = ref<string | null>(null);
+
+const currentUser = ref<UserBasics | null>(null);
 const isLoading = ref(true);
+const hasJoinedServer = ref(false);
 
 const showAddChannel = ref(false);
 const newChannelName = ref('');
 
 const isOwner = computed(() => {
-    return user.value?.id === serverOwnerId.value;
+    return currentUser.value?.id === serverOwnerId.value;
 });
 
 const fetchUser = async () => {
     try {
         const response = await $fetch('/api/users/get', { method: 'GET' });
-        user.value = response.user;
+        currentUser.value = response.user;
     } catch (error) {
-        user.value = null;
+        currentUser.value = null;
     } finally {
         isLoading.value = false;
     }
 };
 
 const handleLeaveServer = async () => {
-    if (!user.value) return;
-    const userId = user.value.id;
+    const userId = currentUser.value?.id;
+
+    isDeletingUser.value = true;
     try {
-        await useFetch('/api/servers/kickUser', {
-            method: 'POST',
-            body: {
-                userId: userId,
-                serverId: serverId
-            }
+        await useFetch(`/api/servers/${serverId}/${userId}`, {
+            method: 'DELETE'
         });
-
-        await useFetch('/api/users/leaveServer', {
-            method: 'POST',
-            body: {
-                userId: userId,
-                serverId: serverId
-            }
-        });
-
-        router.push('/my-servers');
     } catch (error) {
-        console.error('Error leaving server:', error);
+        console.error('Error removing user:', error);
+    } finally {
+        router.push('/my-servers');
     }
 };
 
@@ -214,17 +270,40 @@ const handleDeleteServer = async () => {
     }
 };
 
-const fetchServerUsers = async () => {
+const handleJoinServer = async () => {
+    if (!currentUser.value) return;
+
+    isJoining.value = true;
     try {
-        const { data } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/users`);
-        serverUsers.value = data.value?.users || [];
+        const assignUserReq = {
+            userId: currentUser.value.id,
+            serverId: serverId
+        };
+
+        await useFetch('/api/servers/assignUser', {
+            method: 'POST',
+            body: assignUserReq
+        });
+
+        await useFetch('/api/users/assignServer', {
+            method: 'POST',
+            body: assignUserReq
+        });
+
+        showJoinModal.value = false;
+        hasJoinedServer.value = true;
+        // Load server data only after successful join
+        await loadServerData();
     } catch (error) {
-        console.error('Error fetching server users:', error);
+        console.error('Error joining server:', error);
     } finally {
-        if (!serverUsers.value.some((u) => String(u) === String(user.value?.id))) {
-            showJoinModal.value = true;
-        }
+        isJoining.value = false;
     }
+};
+
+const handleJoinCancel = () => {
+    showJoinModal.value = false;
+    router.push('/my-servers');
 };
 
 const fetchServerDetails = async () => {
@@ -232,6 +311,32 @@ const fetchServerDetails = async () => {
     if (data.value) {
         serverName.value = data.value.title;
         serverOwnerId.value = data.value.creatorId;
+    }
+};
+
+const openChannelDeleteModal = (channelId: string) => {
+    channelToDelete.value = channelId;
+    showChannelDeleteModal.value = true;
+};
+
+const handleChannelDelete = async () => {
+    if (!channelToDelete.value) return;
+
+    isDeletingChannel.value = true;
+    try {
+        await useFetch(`/api/channels/${channelToDelete.value}/delete`, {
+            method: 'DELETE',
+        });
+        channels.value = channels.value.filter(channel => channel.id !== channelToDelete.value);
+        if (currentChannelId.value === channelToDelete.value) {
+            currentChannelId.value = null;
+        }
+    } catch (error) {
+        console.error('Error deleting channel:', error);
+    } finally {
+        isDeletingChannel.value = false;
+        showChannelDeleteModal.value = false;
+        channelToDelete.value = null;
     }
 };
 
@@ -250,13 +355,13 @@ const cancelAdd = () => {
 };
 
 const submitNewChannel = async () => {
-    if (!newChannelName.value.trim() || !user.value) return;
+    if (!newChannelName.value.trim() || !currentUser.value) return;
 
     const newChannel = {
         id: crypto.randomUUID(),
         serverId: serverId,
         title: newChannelName.value.trim(),
-        creatorId: user.value.id
+        creatorId: currentUser.value.id
     };
 
     try {
@@ -289,12 +394,66 @@ const deleteChannel = async (channelId: string) => {
     }
 };
 
+const checkServerMembership = async () => {
+    try {
+        const { data } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/usersBasic`);
+        serverUsers.value = data.value?.users || [];
+        return serverUsers.value.some((u) => String(u.id) === String(currentUser.value?.id));
+    } catch (error) {
+        console.error('Error checking server membership:', error);
+        return false;
+    }
+};
+
+const loadServerData = async () => {
+    try {
+        await Promise.all([
+            fetchServerDetails(),
+            fetchChannels()
+        ]);
+    } catch (error) {
+        console.error('Error loading server data:', error);
+    }
+};
+
+const initializeServer = async () => {
+    await fetchUser();
+    const isMember = await checkServerMembership();
+
+    if (isMember) {
+        hasJoinedServer.value = true;
+        await loadServerData();
+    } else {
+        showJoinModal.value = true;
+    }
+    isLoading.value = false;
+};
+
+const openUserDeleteModal = (userId: string) => {
+    userToDelete.value = userId;
+    showUserDeleteModal.value = true;
+};
+
+const handleUserDelete = async () => {
+    if (!userToDelete.value) return;
+
+    isDeletingUser.value = true;
+    try {
+        await useFetch(`/api/servers/${serverId}/${userToDelete.value}`, {
+            method: 'DELETE'
+        });
+        serverUsers.value = serverUsers.value.filter(user => user.id !== userToDelete.value);
+    } catch (error) {
+        console.error('Error removing user:', error);
+    } finally {
+        isDeletingUser.value = false;
+        showUserDeleteModal.value = false;
+        userToDelete.value = null;
+    }
+};
 
 onMounted(async () => {
-    await fetchUser();
-    await fetchServerDetails();
-    await fetchChannels();
-    await fetchServerUsers();
+    await initializeServer();
 });
 </script>
 
@@ -305,7 +464,8 @@ onMounted(async () => {
 }
 
 .sidebar {
-    width: 250px;
+    max-width: 170px;
+    min-width: 170px;
     padding-top: 0;
     padding-bottom: 0.375rem;
     background: #111827;
@@ -354,6 +514,7 @@ onMounted(async () => {
 .content-area {
     width: 100%;
     margin-left: 20px;
+    margin-right: 20px;
 }
 
 .no-channel-message {
@@ -392,4 +553,22 @@ onMounted(async () => {
     font-size: 1rem;
     font-weight: bold;
 }
+
+.content-area {
+    position: relative;
+}
+
+.no-channel-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.no-channel-message {
+    font-size: 1.2rem;
+    color: #555;
+}
+
 </style>

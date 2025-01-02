@@ -38,5 +38,72 @@
     "author": "krzysz",
     "authorId": "i2z1879ffm",
     "content": "hej"
+  },
+  {
+    "id": "t4dao8jft9",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-25T21:42:13.759Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "hej"
+  },
+  {
+    "id": "24d1rsrr2c",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-25T22:44:49.610Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "huh"
+  },
+  {
+    "id": "48v9kotk1o",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-25T22:45:00.522Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "huh"
+  },
+  {
+    "id": "f5oyy9otcm",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-25T22:45:03.780Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "e"
+  },
+  {
+    "id": "u92k94j4fz",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-25T22:45:08.113Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "e",
+    "filePath": "/uploads/98be107c-2955-4742-b66e-3664b051fa98.gif"
+  },
+  {
+    "id": "p2ksxnyn6n",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-25T22:45:14.651Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "woho",
+    "filePath": "/uploads/693782f8-ae65-4eba-b483-e64d65ae59e1.png"
+  },
+  {
+    "id": "v3oxfhkmr6",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-25T22:47:52.498Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "yo",
+    "filePath": "/uploads/7d8d272d-56db-4e32-80b1-e8e9975ac8f2.png"
+  },
+  {
+    "id": "9gpp47tl0j",
+    "channelId": "16dadb94-3e72-4f49-8ec4-34fd4e8d15bb",
+    "publishDate": "2024-12-27T20:34:05.263Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "elo"
   }
 ]

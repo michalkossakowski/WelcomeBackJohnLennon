@@ -187,7 +187,6 @@ onMounted(() => {
 
 .friend-card:hover {
     transform: translateY(-3px);
-    color: #96ddb0;
 }
 
 @media (min-width: 600px) {

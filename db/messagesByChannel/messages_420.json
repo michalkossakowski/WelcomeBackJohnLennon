@@ -129,5 +129,14 @@
     "author": "krzysz",
     "authorId": "i2z1879ffm",
     "content": "123"
+  },
+  {
+    "id": "i6adoelv0x",
+    "channelId": "420",
+    "publishDate": "2024-12-23T16:07:28.259Z",
+    "author": "admin",
+    "authorId": "9999999999",
+    "content": "hey, here's my profile picture",
+    "filePath": "/uploads/f056f277-1367-4811-8dc9-188d3fa21075.png"
   }
 ]
