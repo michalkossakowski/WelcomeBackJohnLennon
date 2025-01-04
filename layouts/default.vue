@@ -92,7 +92,7 @@ const setupWebSocket = () => {
                 console.log('Call declined');
                 router.push('/');
             }
-        }else if(message.authorId !== user.value?.id){
+        }else{
             toast.add({ title: title, description: message});
         }
         
