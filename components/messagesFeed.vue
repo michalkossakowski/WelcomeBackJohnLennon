@@ -112,7 +112,8 @@ const alertMessage = computed(() => {
 
 
 const addMessage = async (newMessage: Message) => {
-    avatarMap.value.set(newMessage.authorId, await getAvatar(newMessage.authorId)??'');
+    if (!avatarMap.value.has(newMessage.authorId))
+        avatarMap.value.set(newMessage.authorId, await getAvatar(newMessage.authorId)??'');
     messages.value.push(newMessage); 
     nextTick(() => {
         scrollToNewest();
