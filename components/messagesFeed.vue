@@ -72,7 +72,7 @@ const error = ref<string | null>(null);
 const searchMessage = ref<string>('');
 const wsUrl = ref<string | undefined>(undefined);
 const { data, close: closeWebSocket } = useWebSocket(wsUrl, { immediate: false });
-const avatarMap = new Map<string, string>();
+const avatarMap = ref<Map<string, string>>(new Map());
 
 const user = ref<User | null>(null)
 
@@ -111,8 +111,9 @@ const alertMessage = computed(() => {
 });
 
 
-const addMessage = (newMessage: Message) => {
-    messages.value.push(newMessage);
+const addMessage = async (newMessage: Message) => {
+    avatarMap.value.set(newMessage.authorId, await getAvatar(newMessage.authorId)??'');
+    messages.value.push(newMessage); 
     nextTick(() => {
         scrollToNewest();
     });
@@ -148,11 +149,11 @@ const fetchMessages = async () => {
                 )
             );
             for (const message of messages.value) {
-                if (!avatarMap.has(message.authorId)) {
+                if (!avatarMap.value.has(message.authorId)) {
                     console.log(getAvatar(message.authorId));
                     if (message.authorId) {
                         if (message.authorId) {
-                            avatarMap.set(message.authorId, await getAvatar(message.authorId)??'');
+                            avatarMap.value.set(message.authorId, await getAvatar(message.authorId)??'');
                         }
                     }
                 }
