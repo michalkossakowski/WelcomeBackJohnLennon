@@ -2,6 +2,7 @@ export interface User {
   id: string;
   username: string;
   password: string;
+  avatar: string;
 }
   
 export interface Session {
@@ -11,6 +12,7 @@ export interface Session {
 export interface UserBasics{
   id: string;
   username: string;
+  avatar: string;
 }
 
 export interface UserServerRequest{

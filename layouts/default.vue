@@ -152,7 +152,7 @@ const links = computed(() => {
         [
             {
                 label: user.value?.username || 'Guest',
-                avatar: { src: avatarImage },
+                avatar: { src: user.value?.avatar },
                 to: '/profile',
             },
         ],

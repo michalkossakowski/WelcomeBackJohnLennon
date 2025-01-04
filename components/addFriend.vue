@@ -22,7 +22,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (event: 'friendAdded', friend: { id: string, username: string }): void;
+  (event: 'friendAdded', friend: { id: string, username: string, avatar: string }): void;
 }>();
 
 const friendCode = ref('');
