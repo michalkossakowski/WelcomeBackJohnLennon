@@ -91,8 +91,8 @@ const sendMessageToChannel = (message: Message) => {
 
 const sendServerNotifications = (message: Message, serverName: string, channelName: string, serverUsers: string[]) => {
     connectedClients.forEach(({ userId, ws }: { userId: string, ws: WebSocket }) => {
-        if (ws.readyState === 1 && serverUsers.includes(userId)) {
-            ws.send(JSON.stringify({ title: `From: /${serverName}/${channelName}`, message: `Message: ${message.content}`}));
+        if (ws.readyState === 1 && serverUsers.includes(userId) && userId !== message.authorId) {
+            ws.send(JSON.stringify({ title: `Channel: /${serverName}/${channelName}`, message: `Message: ${message.content}`}));
         }
     });
 };
@@ -105,7 +105,7 @@ const sendChatNotifications = (message: Message, receiverId: string, channelName
     if (receiverClient) {
         const { ws } = receiverClient;
         try {
-            ws.send(JSON.stringify({ title: `From: /${message.author}/${channelName}`, message: `Message: ${message.content}` }));
+            ws.send(JSON.stringify({ title: `Private chat with: ${message.author}`, message: `Message: ${message.content}` }));
         } catch (error) {
             console.error(`Error sending message to ${receiverId}:`, error);
         }
