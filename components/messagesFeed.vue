@@ -25,7 +25,7 @@
                         <template #header >
                             <div class="header-content">
                                 <UAvatar :src="avatarMap.get(message.authorId)" class="friend-icon" size="sm"/>  
-                                <b class="username">{{ message.author }}</b>
+                                <b class="username" :title="message.author">{{ message.author }}</b>
                                 <span class="time">
                                     {{ new Date(message.publishDate).toLocaleDateString() }}
                                     {{ new Date(message.publishDate).toLocaleTimeString() }}
@@ -206,6 +206,9 @@ onUnmounted(() => {
     font-size: 22px;
     color: #4ade80;
     margin-right: 10px;
+    text-overflow: ellipsis;
+    max-width: 50%; 
+    overflow: hidden;
 }
 
 #messages-box {

@@ -16,8 +16,8 @@
                 <div>
                     <strong>Friend Code:</strong> {{ user.id }}
                 </div>
-                <div>
-                    <strong>Username:</strong> {{ user.username }}
+                <div class="usernameBox">
+                    <div><strong>Username:&nbsp</strong></div> <div class="username" :title="user.username">{{ user.username }}</div>
                 </div>
                 <div>
                     <strong>Password:</strong> {{ user.password }}
@@ -170,4 +170,18 @@ onMounted(() => {
 .avatar-container:hover .overlay {
     opacity: 1;
 }
+
+
+.username {
+    color: #4ade80;
+    text-overflow: ellipsis;
+    max-width: 30vw; 
+    overflow: hidden;
+}
+
+.usernameBox{
+    display: flex;
+    flex-direction: row;
+}
+
 </style>
