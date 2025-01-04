@@ -23,11 +23,9 @@
             <UCard v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
                 <template #header>
                     <div class="header-content">
-                        <div class="iconName">
-                            <UIcon name="i-heroicons-user"/>
-                            {{ friend.username }}
-                        </div>
+                        <UAvatar :src="friend.avatar" class="friend-icon" size="sm"/>                       
 
+                        <div class="username" :title="friend.username">{{ friend.username }}</div>
                         <div class="buttons">
                             <button @click="openChatWith(friend)">
                                 <UIcon class="icon w-5 h-5" name="i-heroicons-chat-bubble-left-right"/>
@@ -76,6 +74,7 @@ const fetchFriends = async () => {
             friends.value = response.friends.map((user: UserBasics) => ({
                 id: user.id,
                 username: user.username,
+                avatar: user.avatar,
             })
         )}
     } catch (err) {
@@ -177,7 +176,7 @@ onMounted(() => {
     gap: 10px;
     font-weight: bold;
     font-size: 16px;
-    justify-content: space-between;
+    width: 100%;
 }
 
 
@@ -196,10 +195,7 @@ onMounted(() => {
 }
 
 .friend-icon {
-    width: 24px;
-    height: 24px;
     background-color: #ddd;
-    border-radius: 50%;
 }
 
 .icon{
@@ -209,5 +205,17 @@ onMounted(() => {
 .icon:hover{
     color:#4ade80;
     transform: translateY(-3px);
+}
+.username{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: auto; /* Adjust the width as needed */
+    text-align: left;
+}
+.buttons{
+    margin-left: auto;
+    display: flex;
+    gap: 5px;
 }
 </style>

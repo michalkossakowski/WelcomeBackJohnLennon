@@ -71,6 +71,7 @@ export default defineEventHandler(async (event) => {
             friend: {
                 id: friendUser.id,
                 username: friendUser.username,
+                avatar: friendUser.avatar,
             },
         };
     } catch (error) {

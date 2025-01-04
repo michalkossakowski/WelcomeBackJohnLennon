@@ -22,12 +22,15 @@
                 />
                 <div v-for="message in filteredMessages" :key="message.id" class="card">
                     <UCard>
-                        <template #header>
-                            <b class="username">{{ message.author }}</b>
-                            <span class="time">
-                                {{ new Date(message.publishDate).toLocaleDateString() }}
-                                {{ new Date(message.publishDate).toLocaleTimeString() }}
-                            </span>
+                        <template #header >
+                            <div class="header-content">
+                                <UAvatar :src="avatarMap.get(message.authorId)" class="friend-icon" size="sm"/>  
+                                <b class="username">{{ message.author }}</b>
+                                <span class="time">
+                                    {{ new Date(message.publishDate).toLocaleDateString() }}
+                                    {{ new Date(message.publishDate).toLocaleTimeString() }}
+                                </span>
+                            </div>
                         </template>
                         <div class="message-content">
                             <p>{{ message.content }}</p>
@@ -69,6 +72,7 @@ const error = ref<string | null>(null);
 const searchMessage = ref<string>('');
 const wsUrl = ref<string | undefined>(undefined);
 const { data, close: closeWebSocket } = useWebSocket(wsUrl, { immediate: false });
+const avatarMap = new Map<string, string>();
 
 const user = ref<User | null>(null)
 
@@ -113,7 +117,18 @@ const addMessage = (newMessage: Message) => {
         scrollToNewest();
     });
 };
-
+const getAvatar = async (userId: string) => {
+    try {
+        const response = await $fetch(`/api/users/${userId}/getAvatar`, { method: 'GET' });
+        if ('status' in response && response.status === 'success') {
+            console.log(response.avatar);
+            return response.avatar;
+        }
+        
+    } catch (error) {
+        return null;
+    }
+};
 const fetchMessages = async () => {
     loading.value = true;
     error.value = null;
@@ -132,6 +147,16 @@ const fetchMessages = async () => {
                     message.filePath
                 )
             );
+            for (const message of messages.value) {
+                if (!avatarMap.has(message.authorId)) {
+                    console.log(getAvatar(message.authorId));
+                    if (message.authorId) {
+                        if (message.authorId) {
+                            avatarMap.set(message.authorId, await getAvatar(message.authorId)??'');
+                        }
+                    }
+                }
+            }
         }
     } catch (err) {
         error.value = 'Błąd pobierania wiadomości: ' + err;
@@ -142,7 +167,6 @@ const fetchMessages = async () => {
         });
     }
 };
-
 
 const scrollToNewest = () => {
     const messageBox = document.getElementById('messages-box');
@@ -194,5 +218,11 @@ onUnmounted(() => {
 .search-container{
     margin-top: 1vh;
     margin-bottom: 1vh;
+}
+.header-content{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
 }
 </style>

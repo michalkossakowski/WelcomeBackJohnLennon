@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
         const friends: UserBasics[] = users.filter((user) => friendIds.includes(user.id)).map((user) => ({
             id: user.id,
             username: user.username,
+            avatar: user.avatar,
         }));
 
         return { statusCode: 200,  statusMessage: 'Get friends error',friends }
