@@ -147,6 +147,11 @@ const clearFile = () => {
 const submitForm = async () => {
     try {
         resetError();
+        
+        if (!message.value.content.trim()) {
+            toast.add({ title: `Message cannot be null.`});
+            return;
+        }
 
         let uploadedFilePath;
         if (fileUploadRef.value) {
