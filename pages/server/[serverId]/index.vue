@@ -3,7 +3,9 @@
         <div class="sidebar">
             <div class="channels">
                 <div class="server-header">
-                    <h3>{{ serverName }}</h3>
+                    <h3 class="server-title" :title="serverName">
+                        <span class="server-name">{{ serverName }}</span>
+                    </h3>
                     <div class="header-buttons">
                         <UButton
                             v-if="isOwner"
@@ -68,8 +70,8 @@
                         @click="selectChannel(channel.id)"
                         class="channel-item flex justify-between items-center"
                     >
-                    <span class="channel-title cursor-pointer">
-                        {{ channel.title }}
+                    <span class="channel-title cursor-pointer" :title="channel.title">
+                        <span class="channel-name">{{ channel.title }}</span>
                     </span>
                         <UButton
                             v-if="isOwner"
@@ -478,6 +480,27 @@ onMounted(async () => {
     padding-right: 0.625rem;
 }
 
+.channel-item {
+    min-width: 0;
+    gap: 4px;
+}
+
+.channel-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.channel-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.delete-button {
+    flex-shrink: 0;
+}
+
 .server-header {
     display: flex;
     justify-content: space-between;
@@ -485,6 +508,25 @@ onMounted(async () => {
     border-bottom: 1px solid #1f2937;
     margin-top: 0.47rem;
     margin-bottom: 0.47rem;
+}
+
+.server-title {
+    margin: 0;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.server-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
 .server-header h3 {

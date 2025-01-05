@@ -75,7 +75,9 @@
                     <div class="header-content">
                         <i class="server-icon" />
                         <div class="server-info">
-                            <span class="server-title">{{ server.title }}</span>
+                        <span class="server-title" :title="server.title">
+                            <span class="server-name">{{ server.title }}</span>
+                        </span>
                         </div>
                         <UButton
                             v-if="isOwner(server)"
@@ -420,5 +422,42 @@ onMounted(fetchUser);
     justify-content: flex-end;
     gap: 12px;
     padding-top: 16px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    gap: 10px;
+}
+
+.server-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.server-title {
+    font-weight: bold;
+    font-size: 16px;
+    min-width: 0;
+}
+
+.server-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 10px;
+}
+
+.delete-button {
+    width: 32px;
+    height: 32px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 </style>
