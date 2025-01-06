@@ -151,11 +151,6 @@ onMounted(fetchUser);
 </script>
 
 <style scoped>
-.servers-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
 
 .header-row {
     display: flex;
@@ -165,7 +160,7 @@ onMounted(fetchUser);
 }
 
 .title {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
     text-align: left;
     margin-bottom: 0;

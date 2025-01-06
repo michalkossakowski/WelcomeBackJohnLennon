@@ -19,5 +19,11 @@ export default defineNuxtConfig({
     public: {
       wsUrl: 'ws://localhost:3001',
     },
+  },
+
+  app: {
+    head: {
+      title: 'WBJLCA'
+    }
   }
 })
