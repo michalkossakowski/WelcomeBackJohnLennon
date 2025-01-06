@@ -149,7 +149,6 @@ const joinServer = async (serverId: string) => {
             }
         });
 
-        // Assign user to server
         await $fetch('/api/users/assignServer', {
             method: 'POST',
             body: {
