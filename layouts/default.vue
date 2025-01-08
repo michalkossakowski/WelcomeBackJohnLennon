@@ -80,7 +80,7 @@ const fetchUser = async () => {
 const setupWebSocket = () => {
     const socket = new WebSocket(`${config.public.wsUrl}?userId=${user.value?.id}`);
     socket.onmessage = (event) => {
-        const {title,message} = JSON.parse(event.data);
+        const {title,message,from} = JSON.parse(event.data);
         if(title === 'Incoming call'){
             callModalDescription.value = message;
             showCallModal.value = true;
@@ -93,7 +93,14 @@ const setupWebSocket = () => {
                 router.push('/');
             }
         }else{
-            toast.add({ title: title, description: message});
+            toast.add({ 
+                title: title, 
+                description: message,
+                actions: [{
+                    to: from,
+                    label: 'Go to message',  
+                }],
+            });
         }
         
     };
