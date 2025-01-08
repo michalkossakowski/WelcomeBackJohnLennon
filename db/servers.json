@@ -1,140 +1,50 @@
 [
   {
-    "id": "7b9c0ccb-58a9-448d-96a0-7e808c5bfe3f",
-    "title": "Sabrina Stolarz Funclub",
-    "creatorId": "current-user-id",
-    "createdAt": "2024-12-20T23:38:33.940Z"
+    "id": "1a300802-86cc-49f0-ad19-83182a366fde",
+    "title": "BergamotFans",
+    "creatorId": "ude15w9oxt",
+    "createdAt": "2025-01-07T23:44:11.586Z"
   },
   {
-    "id": "251302a2-4455-4c92-84da-69b739694423",
-    "title": "Buda Weryka",
-    "creatorId": "current-user-id",
-    "createdAt": "2024-12-20T23:38:46.032Z"
+    "id": "84ecf91b-e07e-40fd-a378-339fffea2e24",
+    "title": "WarszawaPołudnie",
+    "creatorId": "vz035z28oh",
+    "createdAt": "2025-01-07T23:46:27.784Z"
   },
   {
-    "id": "c125ffa9-f852-48bb-aa40-fb9d373f09ca",
-    "title": "Kex's Lands",
-    "creatorId": "current-user-id",
-    "createdAt": "2024-12-20T23:48:16.853Z"
+    "id": "43bb56fb-ced5-4449-8a47-80478bc3a453",
+    "title": "WarszawaPółnoc",
+    "creatorId": "vz035z28oh",
+    "createdAt": "2025-01-07T23:46:42.016Z"
   },
   {
-    "id": "d7ea5d8b-02df-47f3-82bf-5054d5816f4d",
-    "title": "123",
-    "creatorId": "current-user-id",
-    "createdAt": "2024-12-21T16:57:06.769Z"
+    "id": "480dc3af-0aa7-4e82-a264-dfcc4a480dc4",
+    "title": "RatuszArsenał",
+    "creatorId": "vz035z28oh",
+    "createdAt": "2025-01-07T23:46:49.461Z"
   },
   {
-    "id": "2a487123-2045-4f0c-a624-55dac1581625",
-    "title": "2",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T14:37:38.101Z"
+    "id": "92012b01-bb03-429f-a66f-4ed75e4490d9",
+    "title": "Bródno",
+    "creatorId": "vz035z28oh",
+    "createdAt": "2025-01-07T23:46:57.689Z"
   },
   {
-    "id": "b06d9561-ca03-4875-9383-88eb9b1a0bea",
-    "title": "1",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T14:50:26.432Z"
+    "id": "1b03654d-8571-49d5-bd9e-ce5494b03a29",
+    "title": "Brudno",
+    "creatorId": "vz035z28oh",
+    "createdAt": "2025-01-07T23:47:02.733Z"
   },
   {
-    "id": "cd592cfc-9d0c-4abb-b39f-c4aa53664608",
-    "title": "1",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T14:50:27.692Z"
+    "id": "01c35830-ca95-4594-a9b2-b77fc57b0144",
+    "title": "Rondo onz",
+    "creatorId": "ude15w9oxt",
+    "createdAt": "2025-01-07T23:47:15.542Z"
   },
   {
-    "id": "be3a2a55-0dd0-4677-9f0d-57636ebfea9f",
-    "title": "testAssigningAndAddingServer123",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:39:31.975Z"
-  },
-  {
-    "id": "ffd27c9b-c846-4dac-a2a2-fc51bbba69b6",
-    "title": "testAddAndAssign123",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:40:30.379Z"
-  },
-  {
-    "id": "7c20a6e6-905e-41ac-98ba-809df4d93f95",
-    "title": "Oficalny_test",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:41:17.108Z"
-  },
-  {
-    "id": "e04af72d-f383-4b69-84c4-cf124b1a25a7",
-    "title": "4200",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:41:53.444Z"
-  },
-  {
-    "id": "3478c38e-dd97-4246-ad0a-0cc32c11bb6b",
-    "title": "123",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:42:39.593Z"
-  },
-  {
-    "id": "91ba0d27-1c0a-406b-b9da-8bb2edb62375",
-    "title": "1",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:47:31.286Z"
-  },
-  {
-    "id": "200ac715-ce2e-47e8-9b62-571d4f20196b",
-    "title": "2",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:49:06.091Z"
-  },
-  {
-    "id": "39b43113-faef-4a68-ac0a-8525b7ef6aab",
-    "title": "hej",
-    "creatorId": "n8m7f6g5s4",
-    "createdAt": "2024-12-22T15:52:06.837Z"
-  },
-  {
-    "id": "13b75a51-32da-44d2-a5ee-d1e4b907f963",
-    "title": "addwithsearchtesting",
-    "creatorId": "9999999999",
-    "createdAt": "2024-12-22T18:15:36.716Z"
-  },
-  {
-    "id": "cfcb984f-2b21-4c33-aa8d-2481ed40531c",
-    "title": "HejkaNaklejka",
-    "creatorId": "i2z1879ffm",
-    "createdAt": "2024-12-23T12:48:33.152Z"
-  },
-  {
-    "id": "90bc671d-7a24-4614-a6c5-fd3fa3411442",
-    "title": "xd",
-    "creatorId": "i2z1879ffm",
-    "createdAt": "2024-12-23T13:01:49.542Z"
-  },
-  {
-    "id": "95b37f8a-b0b4-42c9-b513-4a9db7bf03ca",
-    "title": "123",
-    "creatorId": "9999999999",
-    "createdAt": "2024-12-23T13:48:38.870Z"
-  },
-  {
-    "id": "073a376c-9bea-453e-a190-22ca19222cc1",
-    "title": "essa",
-    "creatorId": "9999999999",
-    "createdAt": "2024-12-23T17:22:49.392Z"
-  },
-  {
-    "id": "48638159-2e6b-4419-850a-edd93012429f",
-    "title": "1",
-    "creatorId": "9999999999",
-    "createdAt": "2024-12-24T12:13:58.281Z"
-  },
-  {
-    "id": "52914a9b-a980-46c2-b90b-2b7168462251",
-    "title": "123",
-    "creatorId": "9999999999",
-    "createdAt": "2024-12-24T12:19:43.845Z"
-  },
-  {
-    "id": "63cfa697-c775-4f21-9371-ac404304e2eb",
-    "title": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-    "creatorId": "i2z1879ffm",
-    "createdAt": "2025-01-05T17:56:36.438Z"
+    "id": "c14a25d5-e56d-47cf-936a-7c3f66082b64",
+    "title": "Politechnika",
+    "creatorId": "ude15w9oxt",
+    "createdAt": "2025-01-07T23:47:22.439Z"
   }
 ]
