@@ -1,8 +1,14 @@
 [
-  {
-    "id": "f013ef7f-a0fb-4cb2-8ee0-51ecacef7f99",
-    "serverId": "a859da8a-f678-46ea-825e-baf4233b34d8",
-    "title": "General",
-    "creatorId": "ude15w9oxt"
-  }
+    {
+        "id": "f013ef7f-a0fb-4cb2-8ee0-51ecacef7f99",
+        "serverId": "a859da8a-f678-46ea-825e-baf4233b34d8",
+        "title": "General",
+        "creatorId": "ude15w9oxt"
+    },
+    {
+        "id": "8a1c044c-4094-4421-941c-c8a8e33d4c15",
+        "serverId": "480dc3af-0aa7-4e82-a264-dfcc4a480dc4",
+        "title": "General",
+        "creatorId": "vz035z28oh"
+    }
 ]
