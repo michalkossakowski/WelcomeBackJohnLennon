@@ -23,7 +23,7 @@
                             color="red"
                             variant="ghost"
                             class="action-button"
-                            @click="handleLeaveServer"
+                            @click="openLeaveModal"
                         />
                     </div>
                 </div>
@@ -182,6 +182,19 @@
             @cancel="showChannelDeleteModal = false"
             @action="handleChannelDelete"
         />
+
+        <ScreenPopUp
+            v-model="showLeaveServerModal"
+            title="Leave Server"
+            description="Are you sure you want to leave this server?"
+            show-cancel-button
+            cancel-button-text="Cancel"
+            action-button-text="Leave Server"
+            action-button-color="red"
+            :loading="isLeavingServer"
+            @cancel="showLeaveServerModal = false"
+            @action="handleLeaveServer"
+        />
     </div>
 </template>
 
@@ -211,10 +224,13 @@ const serverOwnerId = ref<string | null>(null);
 const showDeleteModal = ref(false);
 const showJoinModal = ref(false);
 const showChannelDeleteModal = ref(false);
+const showLeaveServerModal = ref(false);
 
 const isDeleting = ref(false);
 const isJoining = ref(false);
 const isDeletingChannel = ref(false);
+const isLeavingServer = ref(false);
+
 const channelToDelete = ref<string | null>(null);
 
 const showUserDeleteModal = ref(false);
@@ -242,9 +258,10 @@ const fetchUser = async () => {
 };
 
 const handleLeaveServer = async () => {
+    isLeavingServer.value = true;
+
     const userId = currentUser.value?.id;
 
-    isDeletingUser.value = true;
     try {
         await useFetch(`/api/servers/${serverId}/${userId}`, {
             method: 'DELETE'
@@ -253,6 +270,7 @@ const handleLeaveServer = async () => {
         console.error('Error removing user:', error);
     } finally {
         router.push('/my-servers');
+        isLeavingServer.value = false;
     }
 };
 
@@ -382,6 +400,10 @@ const submitNewChannel = async () => {
 
 const openDeleteModal = () => {
     showDeleteModal.value = true;
+};
+
+const openLeaveModal = () => {
+    showLeaveServerModal.value = true;
 };
 
 const checkServerMembership = async () => {

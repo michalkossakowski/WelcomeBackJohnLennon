@@ -246,7 +246,6 @@ onMounted(fetchUser);
 
 .server-card {
     transition: transform 0.3s ease;
-    cursor: pointer;
     min-height: 80px;
     width: 100%;
 }
