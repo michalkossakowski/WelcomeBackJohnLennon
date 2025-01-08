@@ -46,7 +46,6 @@
                 <FileUpload
                     ref="fileUploadRef"
                     @file-selected="handleFileSelected"
-                    @file-cleared="handleFileClear"
                     class="flex-shrink-0"
                     :disabled="isError"
                 />
@@ -122,6 +121,7 @@ const isValidFileType = (file: File): boolean => {
 
 const handleFileSelected = (file: File) => {
     if (!isValidFileType(file)) {
+        clearFile()
         fileTypeError.value = "Invalid file type. Please upload only JPG, PNG, or GIF files.";
         return;
     }
@@ -131,17 +131,13 @@ const handleFileSelected = (file: File) => {
     filePath.value = URL.createObjectURL(file);
 };
 
-const handleFileClear = () => {
-    selectedFile.value = null;
-    filePath.value = null;
-    fileTypeError.value = null;
-};
-
 const clearFile = () => {
     if (fileUploadRef.value) {
         fileUploadRef.value.clearFile();
     }
-    handleFileClear();
+    selectedFile.value = null;
+    filePath.value = null;
+    fileTypeError.value = null;
 };
 
 const submitForm = async () => {
@@ -193,6 +189,8 @@ const submitForm = async () => {
         } else {
             errorMessage.value = "Failed to send message. Please try again.";
         }
+    } finally {
+        clearFile()
     }
 };
 </script>

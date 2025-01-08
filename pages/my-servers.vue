@@ -25,7 +25,7 @@
             <UCard v-if="showAddServer" class="server-card add-server-card">
                 <template #header>
                     <div class="add-server-content">
-                        <i class="server-icon" />
+                        <UIcon name="i-heroicons-globe-alt" class="server-icon" />
                         <div class="input-group">
                             <span class="input-label">Name:</span>
                             <UInput
@@ -73,20 +73,20 @@
             >
                 <template #header>
                     <div class="header-content">
-                        <i class="server-icon" />
+                        <UIcon name="i-heroicons-globe-alt" class="server-icon" />
                         <div class="server-info">
-                        <span class="server-title" :title="server.title">
-                            <span class="server-name">{{ server.title }}</span>
-                        </span>
-                        </div>
-                        <UButton
-                            v-if="isOwner(server)"
-                            icon="i-heroicons-trash"
-                            color="red"
-                            variant="ghost"
-                            class="delete-button"
-                            @click.stop="openDeleteModal(server)"
-                        />
+                            <span class="server-title" :title="server.title">
+                                <span class="server-name">{{ server.title }}</span>
+                            </span>
+                            </div>
+                            <UButton
+                                v-if="isOwner(server)"
+                                icon="i-heroicons-trash"
+                                color="red"
+                                variant="ghost"
+                                class="delete-button"
+                                @click.stop="openDeleteModal(server)"
+                            />
                     </div>
                 </template>
             </UCard>
@@ -323,8 +323,6 @@ onMounted(fetchUser);
 .server-icon {
     width: 24px;
     height: 24px;
-    background-color: #ddd;
-    border-radius: 50%;
     flex-shrink: 0;
 }
 
@@ -340,7 +338,7 @@ onMounted(fetchUser);
 .add-server-content {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 8px;
 }
 
 .input-group {
@@ -374,7 +372,6 @@ onMounted(fetchUser);
     flex-direction: column;
     gap: 4px;
     flex-grow: 1;
-    margin-left: 10px;
 }
 
 .server-title {

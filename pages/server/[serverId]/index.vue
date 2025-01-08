@@ -1,5 +1,8 @@
 <template>
-    <div class="server-view">
+    <div v-if="isLoading" class="loading-container">
+        <p class="loading-message">Loading...</p>
+    </div>
+    <div v-else class="server-view">
         <div class="sidebar">
             <div class="channels">
                 <div class="server-header">
@@ -235,8 +238,6 @@ const fetchUser = async () => {
         currentUser.value = response.user;
     } catch (error) {
         currentUser.value = null;
-    } finally {
-        isLoading.value = false;
     }
 };
 
@@ -383,26 +384,23 @@ const openDeleteModal = () => {
     showDeleteModal.value = true;
 };
 
-const deleteChannel = async (channelId: string) => {
-    if (!isOwner.value) return;
-
-    try {
-        await useFetch(`/api/channels/${channelId}/delete`, {
-            method: 'DELETE',
-        });
-        channels.value = channels.value.filter(channel => channel.id !== channelId);
-    } catch (error) {
-        console.error('Error deleting channel:', error);
-    }
-};
-
 const checkServerMembership = async () => {
     try {
-        const { data } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/usersBasic`);
+        const { data, error } = await useFetch<{ users: UserBasics[] }>(`/api/servers/${serverId}/usersBasic`);
+
+        if (error.value) {
+            if (error.value.statusCode === 404) {
+                await navigateTo('/');
+                return false;
+            }
+            throw error.value;
+        }
+
         serverUsers.value = data.value?.users || [];
         return serverUsers.value.some((u) => String(u.id) === String(currentUser.value?.id));
     } catch (error) {
         console.error('Error checking server membership:', error);
+        navigateTo('/');
         return false;
     }
 };

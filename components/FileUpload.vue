@@ -48,7 +48,6 @@ const clearFile = () => {
     if (fileInput.value) {
         fileInput.value.value = '';
     }
-    emit('file-cleared');
 };
 
 defineExpose({ uploadFile, clearFile });

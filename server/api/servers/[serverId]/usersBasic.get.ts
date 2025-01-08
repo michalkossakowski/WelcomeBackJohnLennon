@@ -25,11 +25,10 @@ export default defineEventHandler(async (event) => {
             serverUserIds = JSON.parse(serverData);
             allUsers = JSON.parse(allUsersData);
         } catch (error) {
-            return {
-                status: 'success',
-                message: 'Server users retrieved',
-                users: []
-            };
+            throw createError({
+                statusCode: 404,
+                statusMessage: 'Server not found',
+            });
         }
 
         const serverUsers = serverUserIds
@@ -42,7 +41,10 @@ export default defineEventHandler(async (event) => {
             message: 'Server users retrieved',
             users: serverUsers
         };
-    } catch (error) {
+    } catch (error : any) {
+        if (error.statusCode === 404) {
+            throw error;
+        }
         throw createError({
             statusCode: 500,
             statusMessage: `Failed to get server users: ${error}`,

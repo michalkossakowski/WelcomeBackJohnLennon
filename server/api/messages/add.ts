@@ -24,12 +24,13 @@ export default defineEventHandler(async (event) => {
         }
 
         messages.push(body);
-        await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
 
         if(body.channelId.startsWith("chat")) {
             let receiverId = body.channelId;
             receiverId = receiverId.replace("chat", "");
             receiverId = receiverId.replace(body.authorId, "");
+
+            await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
             sendChatNotifications(body, receiverId, body.author);
         }
         else {
@@ -52,6 +53,7 @@ export default defineEventHandler(async (event) => {
                 });
             }
 
+            await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
             sendServerNotifications(body, server.title, channel.title, serverUsers);
         }
 

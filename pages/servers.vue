@@ -8,16 +8,30 @@
         <template v-else>
             <div class="header-row">
                 <h1 class="title">Explore servers</h1>
-                <UInput
-                    icon="i-heroicons-magnifying-glass-20-solid"
-                    size="sm"
-                    color="white"
-                    :trailing="false"
-                    v-model="searchServer"
-                    type="text"
-                    placeholder="Search by server name ..."
-                    class="search-input"
-                />
+                <div class="controls">
+                    <UInput
+                        icon="i-heroicons-magnifying-glass-20-solid"
+                        size="sm"
+                        color="white"
+                        :trailing="false"
+                        v-model="searchServer"
+                        type="text"
+                        placeholder="Search by server name ..."
+                        class="search-input"
+                    />
+                    <UButton
+                        size="sm"
+                        color="white"
+                        @click="toggleSort"
+                        class="sort-button"
+                    >
+                        <img
+                            :src="sortIcon"
+                            alt="Sort alphabetically"
+                            class="sort-icon"
+                        />
+                    </UButton>
+                </div>
             </div>
             <div class="servers-list">
                 <UAlert
@@ -33,20 +47,20 @@
                     :key="server.id"
                     class="server-card"
                 >
-                <template #header>
-                    <div class="header-content">
-                        <i class="server-icon" />
-                        <div class="server-info">
-                            <span class="server-title" :title="server.title">
-                                <span class="server-name">{{ server.title }}</span>
-                            </span>
-                            <span class="server-id">{{ server.id }}</span>
+                    <template #header>
+                        <div class="header-content">
+                            <UIcon name="i-heroicons-globe-alt" class="server-icon" />
+                            <div class="server-info">
+                                <span class="server-title" :title="server.title">
+                                    <span class="server-name">{{ server.title }}</span>
+                                </span>
+                                <span class="server-id">{{ server.id }}</span>
+                            </div>
+                            <UButton class="join-button" @click="joinServer(server.id)">
+                                Join
+                            </UButton>
                         </div>
-                        <UButton class="join-button" @click="joinServer(server.id)">
-                            Join
-                        </UButton>
-                    </div>
-                </template>
+                    </template>
                 </UCard>
             </div>
         </template>
@@ -65,6 +79,13 @@ const myServers = ref<Server[]>([]);
 const searchServer = ref<string>('');
 const user = ref<UserBasics | null>(null);
 const isLoading = ref(true);
+const sortAscending = ref(true);
+
+const sortIcon = computed(() =>
+    sortAscending.value
+        ? '/assets/alphabetical-sorting-svgrepo-com.svg'
+        : '/assets/alphabetical-sorting-2-svgrepo-com.svg'
+);
 
 const availableServers = computed(() => {
     if (!allServers.value || !myServers.value) return [];
@@ -81,10 +102,16 @@ const filteredServers = computed(() => {
 });
 
 const sortedServers = computed(() => {
-    return [...availableServers.value].sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const servers = [...availableServers.value];
+    return servers.sort((a, b) => {
+        const comparison = a.title.localeCompare(b.title);
+        return sortAscending.value ? comparison : -comparison;
+    });
 });
+
+const toggleSort = () => {
+    sortAscending.value = !sortAscending.value;
+};
 
 const alertMessage = computed(() => {
     if (!allServers.value || allServers.value.length === 0) {
@@ -197,8 +224,18 @@ onMounted(fetchUser);
     margin-bottom: 0;
 }
 
+.controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .search-input {
     width: 300px;
+}
+
+.search-input :deep(input) {
+    height: 44px;
 }
 
 .servers-list {
@@ -229,17 +266,7 @@ onMounted(fetchUser);
 .server-icon {
     width: 24px;
     height: 24px;
-    background-color: #ddd;
-    border-radius: 50%;
     flex-shrink: 0;
-}
-
-.server-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex-grow: 1;
-    margin-left: 10px;
 }
 
 .server-title {
@@ -271,7 +298,6 @@ onMounted(fetchUser);
     gap: 4px;
     flex-grow: 1;
     min-width: 0;
-    margin-left: 10px;
 }
 
 .server-title {
@@ -290,5 +316,20 @@ onMounted(fetchUser);
 .join-button {
     align-self: center;
     flex-shrink: 0;
+}
+
+.sort-button {
+    height: 44px;
+    width: 44px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.sort-icon {
+    width: 30px;
+    height: 30px;
 }
 </style>

@@ -1,11 +1,5 @@
 [
   {
-    "id": "1a300802-86cc-49f0-ad19-83182a366fde",
-    "title": "BergamotFans",
-    "creatorId": "ude15w9oxt",
-    "createdAt": "2025-01-07T23:44:11.586Z"
-  },
-  {
     "id": "84ecf91b-e07e-40fd-a378-339fffea2e24",
     "title": "WarszawaPołudnie",
     "creatorId": "vz035z28oh",
@@ -30,21 +24,9 @@
     "createdAt": "2025-01-07T23:46:57.689Z"
   },
   {
-    "id": "1b03654d-8571-49d5-bd9e-ce5494b03a29",
-    "title": "Brudno",
-    "creatorId": "vz035z28oh",
-    "createdAt": "2025-01-07T23:47:02.733Z"
-  },
-  {
     "id": "01c35830-ca95-4594-a9b2-b77fc57b0144",
     "title": "Rondo onz",
     "creatorId": "ude15w9oxt",
     "createdAt": "2025-01-07T23:47:15.542Z"
-  },
-  {
-    "id": "c14a25d5-e56d-47cf-936a-7c3f66082b64",
-    "title": "Politechnika",
-    "creatorId": "ude15w9oxt",
-    "createdAt": "2025-01-07T23:47:22.439Z"
   }
 ]
