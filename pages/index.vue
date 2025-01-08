@@ -1,6 +1,6 @@
 <template>
 
-    <div class="container">
+    <div class="home-container">
         <div class="cardBox">
             <router-link to="/profile" class="card">
                 <UCard>
@@ -65,11 +65,11 @@
 <style scoped>
 
 .icon {
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
 }
 
-.container{
+.home-container{
     align-items: center;
     display: flex;
     justify-content: center;
@@ -83,7 +83,7 @@
     gap: 50px;
     flex-wrap: wrap;
     margin-top: 50px;
-    max-width: 1000px;
+
 }
 
 .card {
