@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
       id: Math.random().toString(36).slice(2, 12).toString(), 
       username: body.username,
       password: body.password,
+      avatar: "/assets/defaultUserIcon.jpg",
     }
     users.push(newUser)
 

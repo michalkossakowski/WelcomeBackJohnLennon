@@ -33,8 +33,10 @@ export default defineEventHandler(async (event) => {
 
         if (oldAvatarPath) {
             try {
-                await fs.unlink(`./public/${oldAvatarPath}`);
-                console.log('Old avatar removed:', oldAvatarPath);
+                if(oldAvatarPath !== "/assets/defaultUserIcon.jpg"){
+                    await fs.unlink(`./public/${oldAvatarPath}`);
+                    console.log('Old avatar removed:', oldAvatarPath);
+                } 
             } catch (err) {
                 console.error('Error removing old avatar:', err);
             }

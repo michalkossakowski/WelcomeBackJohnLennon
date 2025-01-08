@@ -25,7 +25,6 @@
     class SignalingChannel {
         ws: WebSocket;
         constructor() {
-            //this.ws = new WebSocket(`ws://localhost:3001?CallerId=${routerCallerID}`);
             console.log(`${config.public.wsUrl}?CallerId=${routerCallerID}&CalleeID=${routerCalleeID}`);
             this.ws = new WebSocket(`${config.public.wsUrl}?CallerId=${routerCallerID}&CalleeID=${routerCalleeID}`);
             this.ws.onopen = () => {

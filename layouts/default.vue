@@ -163,7 +163,6 @@ const links = computed(() => {
             { label: 'Friends', icon: 'i-heroicons-user-group', to: '/friends' },
             { label: 'Private Messages', icon: 'i-heroicons-envelope', to: '/chats' },
             { label: 'Help', icon: 'i-heroicons-question-mark-circle', to: '/help' },
-            { label: 'Video', icon: 'i-heroicons-video-camera', to: '/video' },
         ],
     ];
 });
