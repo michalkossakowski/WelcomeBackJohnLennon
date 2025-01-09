@@ -36,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+
 const props = defineProps<{
     modelValue: boolean
     title: string
@@ -43,7 +44,7 @@ const props = defineProps<{
     showCancelButton?: boolean
     cancelButtonText?: string
     actionButtonText: string
-    actionButtonColor?: string
+    actionButtonColor?: any
     loading?: boolean
 }>();
 

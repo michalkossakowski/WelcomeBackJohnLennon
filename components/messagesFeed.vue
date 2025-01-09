@@ -123,7 +123,6 @@ const getAvatar = async (userId: string) => {
     try {
         const response = await $fetch(`/api/users/${userId}/getAvatar`, { method: 'GET' });
         if ('status' in response && response.status === 'success') {
-            console.log(response.avatar);
             return response.avatar;
         }
         
@@ -151,7 +150,6 @@ const fetchMessages = async () => {
             );
             for (const message of messages.value) {
                 if (!avatarMap.value.has(message.authorId)) {
-                    console.log(getAvatar(message.authorId));
                     if (message.authorId) {
                         if (message.authorId) {
                             avatarMap.value.set(message.authorId, await getAvatar(message.authorId)??'');
