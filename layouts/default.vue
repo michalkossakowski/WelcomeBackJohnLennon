@@ -88,6 +88,7 @@ const fetchUser = async () => {
 
 const setupWebSocket = async () => {
     const socket = new WebSocket(`${config.public.wsUrl}?userId=${user.value?.id}`);
+
     socket.onmessage = async (event) => {
         const {title,message,from} = JSON.parse(event.data);
         if(title === 'Incoming call'){
@@ -124,7 +125,14 @@ const setupWebSocket = async () => {
                 router.push(`/videoChat/${user.value?.id}/${from}`);
             }
         }else{
-            toast.add({ title: title, description: message});
+            toast.add({ 
+                title: title, 
+                description: message,
+                actions: [{
+                    to: from,
+                    label: 'Go to message',  
+                }],
+            });
         }
         
     };

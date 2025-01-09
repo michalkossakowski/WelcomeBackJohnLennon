@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
             receiverId = receiverId.replace(body.authorId, "");
 
             await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
-            sendChatNotifications(body, receiverId, body.author);
+            sendChatNotifications(body, receiverId);
         }
         else {
 
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
             }
 
             await fs.writeFile(filePath, JSON.stringify(messages, null, 2), 'utf8');
-            sendServerNotifications(body, server.title, channel.title, serverUsers);
+            sendServerNotifications(body, server.title,server.id, channel.title, serverUsers);
         }
 
         sendMessageToChannel(body);
