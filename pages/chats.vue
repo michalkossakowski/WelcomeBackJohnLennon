@@ -64,7 +64,6 @@ const fetchUser = async () => {
 const fetchFriends = async () => {
     try {
         const response  = await $fetch(`/api/friends/${user.value?.id}`, { method: 'GET' });
-        console.log(response);
         if ('friends' in response) {
             friends.value = response.friends.map((user: UserBasics) => ({
                 id: user.id,

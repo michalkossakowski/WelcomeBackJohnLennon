@@ -45,14 +45,14 @@
             prevent-close
             title="Calling" 
             :description="'calling'"
-            show-cancel-button
             action-button-text="Cancel"
             action-button-color="red"
             @action="CancelCall(caleeId)"
             class="center-content"
         >
             <div class="content-wrapper">
-                <p>calling</p>
+                <img :src="callModalImage" alt="avatar" class="avatar">
+                <p class="call-description">Calling: <b class="user-name">{{ callModalDescription }}</b></p>
             </div>
     </ScreenPopUp>
     <audio ref="callingSound" id="ringtone" src="/assets/calling.mp3" loop allow="autoplay"></audio>
@@ -75,6 +75,9 @@ const caleeId = ref<string>('');
 const toast = useToast();
 const callingSound = ref<HTMLAudioElement | null>(null);
 
+const callModalImage = ref('');
+const callModalDescription = ref('');
+
 const fetchUser = async () => {
     try {
         const response = await $fetch('/api/users/get', { method: 'GET' })
@@ -89,7 +92,6 @@ const fetchUser = async () => {
 const fetchFriends = async () => {
     try {
         const response  = await $fetch(`/api/friends/${user.value?.id}`, { method: 'GET' });
-        console.log(response);
         if ('friends' in response) {
             friends.value = response.friends.map((user: UserBasics) => ({
                 id: user.id,
@@ -172,6 +174,8 @@ const startCall = async (friend: UserBasics) => {
         }
         showCallModal.value = true;
         caleeId.value = friend.id;
+        callModalImage.value = friend.avatar;
+        callModalDescription.value = friend.username;
         callingSound.value?.play();
         //router.push(`/videoChat/${user.value?.id}/${friend.id}`);
         //router.push(`/video/${response.data.value}`);
@@ -273,5 +277,27 @@ onMounted(() => {
     margin-left: auto;
     display: flex;
     gap: 5px;
+}
+.icon-call{
+    width: 200px;
+    height: 200px;
+}
+.content-wrapper{
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.avatar{
+    width: 160px;
+    height: 160px;
+    margin-right: 50px;
+    border-radius: 50%;
+}
+.call-description {
+    font-size: 24px;
+}
+.user-name {
+    color: #4ade80;
 }
 </style>

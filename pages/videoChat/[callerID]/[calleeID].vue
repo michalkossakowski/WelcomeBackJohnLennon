@@ -69,11 +69,14 @@
 
     class SignalingChannel {
         ws: WebSocket;
+        messageQueue: any[] = [];
         constructor() {
             console.log(`${config.public.wsUrl}?CallerId=${routerCallerID}&CalleeID=${routerCalleeID}`);
             this.ws = new WebSocket(`${config.public.wsUrl}?CallerId=${routerCallerID}&CalleeID=${routerCalleeID}`);
             this.ws.onopen = () => {
                 console.log('WebSocket opened');
+                this.messageQueue.forEach(message => this.send(message));
+                this.messageQueue = [];
                 this.send({ type: 'join', callerID: routerCallerID, calleeID: routerCalleeID });
             };
             this.ws.onmessage = (event) => {
@@ -92,7 +95,11 @@
             };
         }
         send(message: any) {
-            this.ws.send(JSON.stringify(message));
+          if (this.ws.readyState === WebSocket.OPEN) {
+              this.ws.send(JSON.stringify(message));
+          } else {
+              this.messageQueue.push(message);
+          }
         }
         close() {
             this.ws.close();
