@@ -29,27 +29,32 @@
 
         <UNotifications />
     </div>
-    <ScreenPopUp
+    <ScreenPopUp 
             v-model="showCallModal"
             prevent-close
-            title="Calling"
+            title="Calling" 
             :description="callModalDescription"
             show-cancel-button
             cancel-button-text="Decline"
+            cancel-button-color="red"
             action-button-text="Answer"
             action-button-color="green"
-            @cancel="DeclineCall(callModalDescription)"
-            @action="AnswerCall(callModalDescription)"
+            @cancel="DeclineCall(callerID)"
+            @action="AnswerCall(callerID)"
+            class="center-content"
         >
-            <p>{{ callModalDescription }}</p>
+            <div class="content-wrapper">
+                <img :src="callModalImage" alt="avatar" class="avatar">
+                <p class="call-description"><b class="user-name">{{ callModalDescription }}</b> is calling you</p>
+            </div>
     </ScreenPopUp>
+    <audio ref="ringtone" id="ringtone" src="/assets/ringtone.mp3" loop allow="autoplay"></audio>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watchEffect } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import avatarImage from './public/assets/avatar.jpg';
-import type { User, UserBasics } from '~/models/userModel';
+import type { User } from '~/models/userModel';
 
 const router = useRouter();
 const user = ref<User | null>(null);
@@ -58,7 +63,11 @@ const isLoading = ref(true);
 const config = useRuntimeConfig();
 
 const showCallModal = ref(false); 
+const callerID = ref('');
 const callModalDescription = ref(''); 
+const callModalImage = ref('');
+const ringtone = ref<HTMLAudioElement | null>(null);
+
 
 const fetchUser = async () => {
     try {
@@ -77,20 +86,42 @@ const fetchUser = async () => {
     }
 };
 
-const setupWebSocket = () => {
+const setupWebSocket = async () => {
     const socket = new WebSocket(`${config.public.wsUrl}?userId=${user.value?.id}`);
-    socket.onmessage = (event) => {
-        const {title,message} = JSON.parse(event.data);
+    socket.onmessage = async (event) => {
+        const {title,message,from} = JSON.parse(event.data);
         if(title === 'Incoming call'){
-            callModalDescription.value = message;
-            showCallModal.value = true;
-        }else if(title === 'Call response'){
+            await getUserBasic(message).then((userBasic) => {
+                if(userBasic){
+                    callerID.value = userBasic.id;
+                    callModalDescription.value = `${userBasic.username}`;
+                    callModalImage.value = userBasic.avatar;
+                    showCallModal.value = true;
+                    ringtone.value?.play();
+                    
+                }
+            });
+            
+        }else if(title === 'Cancel call' ){
+            toast.add({ title: 'Call request ended', description: 'The call request has ended' });
+            showCallModal.value = false;
+            if(ringtone.value){
+                ringtone.value.pause();
+                ringtone.value.currentTime = 0;
+            }
+        }
+        else if(title === 'Call response'){
             toast.add({ title: title, description: message});
             console.log(message)
             if(message === 'declined')
             {
                 console.log('Call declined');
                 router.push('/');
+            }
+            if(message === 'accept' && from)
+            {
+                console.log('Call accepted');
+                router.push(`/videoChat/${user.value?.id}/${from}`);
             }
         }else{
             toast.add({ title: title, description: message});
@@ -100,7 +131,10 @@ const setupWebSocket = () => {
 };
 
 const AnswerCall = async (friendID: string) => {
-    console.log(`Video Ja: ${user.value?.id} Ziomo: ${friendID}`);
+    if(ringtone.value){
+        ringtone.value.pause();
+        ringtone.value.currentTime = 0;
+    }
     await $fetch('/api/video/response', {
         method: 'POST',
         body: JSON.stringify({
@@ -111,7 +145,7 @@ const AnswerCall = async (friendID: string) => {
         headers: {
             'Content-Type': 'application/json',
         },
-    }).then(response => {
+    }).then(async response => {
         console.log(response);
         if (response.status === 'error') {
             console.error('Error with starting call:', response.message);
@@ -124,7 +158,10 @@ const AnswerCall = async (friendID: string) => {
     });
 };
 const DeclineCall = async (friendID: string) => {
-    console.log(`Video Ja: ${user.value?.id} Ziomo: ${friendID}`);
+    if(ringtone.value){
+        ringtone.value.pause();
+        ringtone.value.currentTime = 0;
+    }
     await $fetch('/api/video/response', {
         method: 'POST',
         body: JSON.stringify({
@@ -184,7 +221,16 @@ const logout = async () => {
         console.error('Error during logout', error)
     }
 }
-
+const getUserBasic = async (userId: string) => {
+    try {
+        const response = await $fetch(`/api/users/${userId}/getUserBasic`, { method: 'GET' });
+        if ('status' in response && response.status === 'success') {
+            return response.userBasic;
+        }        
+    } catch (error) {
+        return null;
+    }
+};
 onMounted(() => {
     fetchUser();
 });
@@ -251,5 +297,30 @@ footer {
     text-align: center;
     margin-top: auto;
     margin-bottom: 10px;
+}
+.avatar{
+    width: 160px;
+    height: 160px;
+    margin-right: 50px;
+    border-radius: 50%;
+}
+.center-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.content-wrapper {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.call-description {
+    font-size: 24px;
+}
+.user-name {
+    color: #4ade80;
 }
 </style>
